@@ -1,81 +1,58 @@
-import streamlit as st
-
-# 1. 페이지 설정 및 디자인 개선 (넓은 화면 사용)
-st.set_page_config(page_title="Sungsimdang Safety Guide", page_icon="🥐", layout="wide")
-
-# 커스텀 CSS로 디자인 입히기
-st.markdown("""
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>성심당 빵 백과사전</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
-    .main { background-color: #fffaf0; }
-    .stButton>button { width: 100%; border-radius: 20px; background-color: #e67e22; color: white; }
-    .bread-card { border: 1px solid #ddd; padding: 15px; border-radius: 15px; background-color: white; box-shadow: 2px 2px 10px rgba(0,0,0,0.05); }
-    .badge { padding: 2px 8px; border-radius: 10px; font-size: 12px; font-weight: bold; }
-    .best-seller { background-color: #ff4b4b; color: white; }
+        .bread-card:hover { transform: translateY(-5px); transition: all 0.3s ease; }
     </style>
-    """, unsafe_allow_html=True)
+</head>
+<body class="bg-orange-50 p-6">
 
-# 2. 강력한 영문 경고문 (상단 고정)
-with st.container():
-    st.error("🚨 IMPORTANT: MEDICAL DISCLAIMER")
-    with st.expander("Read Safety Information Before Use"):
-        st.write("""
-        1. **Informational Purposes Only:** This is an unofficial guide.
-        2. **No Medical Guarantee:** Recipe changes or cross-contamination may occur.
-        3. **Use at Your Own Risk:** Developer and Sungsimdang are not liable for any reactions.
-        4. **Final Verification:** Always check with staff if you have severe allergies.
-        """)
-    agreed = st.checkbox("I understand and agree to the terms above.")
+    <header class="text-center mb-12">
+        <h1 class="text-4xl font-bold text-orange-800 mb-2">🥖 성심당 명예의 전당</h1>
+        <p class="text-gray-600">티스토리 블로그와 연동된 실시간 빵 정보</p>
+    </header>
 
-if agreed:
-    st.divider()
-    
-    # 데이터베이스 (정보를 더 풍성하게 추가)
-    products = [
-        {"name": "Fried Soboro (튀김소보로)", "category": "Best Seller", "price": "1,700 KRW", "desc": "Crunchy streusel bread with sweet red bean paste inside.", "allergens": ["Egg", "Soy", "Wheat", "Milk", "Sulfites"]},
-        {"name": "Pantaloon Chive Bread (판타롱부추빵)", "category": "Signature", "price": "2,000 KRW", "desc": "Soft bun filled with fresh chives and egg salad.", "allergens": ["Egg", "Chicken", "Soy", "Pork", "Wheat", "Beef", "Milk", "Shellfish"]},
-        {"name": "Myeongnan Baguette (명란바게트)", "category": "Hot Item", "price": "3,800 KRW", "desc": "Salty and savory baguette with pollack roe.", "allergens": ["Wheat", "Soy", "Egg", "Milk", "Fish"]},
-        {"name": "Plain Scone", "category": "Classic", "price": "2,500 KRW", "desc": "Simple, buttery, and flaky scone.", "allergens": ["Wheat", "Milk", "Egg"]},
-    ]
+    <div id="bread-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
+        </div>
 
-    # 왼쪽 사이드바: 필터 설정
-    with st.sidebar:
-        st.title("🛡️ Allergy Filter")
-        st.info("Select ingredients you must avoid.")
-        all_allergens = sorted(list(set([a for p in products for a in p["allergens"]])))
-        user_selected = st.multiselect("Your Allergies:", options=all_allergens)
-        st.divider()
-        st.write("📖 **Tip:** Items marked as 'Safe' do not contain your selected allergens in their main recipe.")
+    <script>
+        const breadData = [
+            { id: 1, name: "마라미고로케", link: "https://travelbuddy-korea.tistory.com/2", desc: "매콤한 마라향이 가득한 특별한 고로케" },
+            { id: 2, name: "뺑오쇼콜라", link: "https://travelbuddy-korea.tistory.com/3", desc: "겹겹이 쌓인 페이스트리 속 달콤한 초콜릿" },
+            { id: 3, name: "모찌모찌식빵", link: "https://travelbuddy-korea.tistory.com/4", desc: "이름처럼 쫄깃쫄깃한 식감이 일품인 식빵" },
+            { id: 4, name: "야채고로케", link: "https://travelbuddy-korea.tistory.com/5", desc: "아삭한 야채와 고소한 튀김의 환상 궁합" },
+            { id: 5, name: "작은메아리", link: "https://travelbuddy-korea.tistory.com/6", desc: "보문산메아리의 미니 버전, 바삭하고 달콤함" },
+            { id: 6, name: "노아레즌", link: "https://travelbuddy-korea.tistory.com/7", desc: "건포도와 호두가 듬뿍 들어간 건강 호밀빵" },
+            { id: 7, name: "시월의무화과", link: "https://travelbuddy-korea.tistory.com/8", desc: "톡톡 터지는 무화과의 풍미가 가득한 계절빵" },
+            { id: 8, name: "빅매치", link: "https://travelbuddy-korea.tistory.com/9", desc: "겉은 비스킷, 속은 크림치즈로 가득한 인기 메뉴" },
+            { id: 9, name: "무화과그늘아래", link: "https://travelbuddy-korea.tistory.com/10", desc: "호두와 무화과가 조화로운 고소한 건강빵" },
+            { id: 10, name: "스테이크빵", link: "https://travelbuddy-korea.tistory.com/11", desc: "든든한 스테이크 속재료가 듬뿍 들어간 조리빵" }
+        ];
 
-    # 메인 섹션
-    st.title("🥐 Find Your Safe Bread")
-    search_query = st.text_input("Search bread name (e.g., Soboro)", "")
+        const grid = document.getElementById('bread-grid');
 
-    # 검색 및 필터링 로직
-    filtered_products = [p for p in products if search_query.lower() in p["name"].lower()]
-
-    # 카드형 레이아웃 구성 (3열)
-    cols = st.columns(3)
-    for i, p in enumerate(filtered_products):
-        with cols[i % 3]:
-            danger_list = [a for a in user_selected if a in p["allergens"]]
-            
-            st.markdown(f"""
-                <div class="bread-card">
-                    <span class="badge best-seller">{p['category']}</span>
-                    <h3>{p['name']}</h3>
-                    <p style="color: #666; font-size: 0.9em;">{p['desc']}</p>
-                    <p><b>Price:</b> {p['price']}</p>
+        breadData.forEach(bread => {
+            const card = `
+                <div class="bread-card bg-white rounded-xl shadow-lg overflow-hidden border border-orange-100">
+                    <div class="h-48 bg-orange-200 flex items-center justify-center text-orange-400">
+                        <span class="text-sm font-bold">${bread.name} 이미지 준비 중</span>
+                    </div>
+                    <div class="p-5">
+                        <h3 class="text-xl font-bold text-gray-800 mb-2">${bread.name}</h3>
+                        <p class="text-gray-600 text-sm mb-4">${bread.desc}</p>
+                        <a href="${bread.link}" target="_blank" 
+                           class="inline-block w-full text-center bg-orange-500 hover:bg-orange-600 text-white font-bold py-2 px-4 rounded-lg transition">
+                           상세 레시피/후기 보기
+                        </a>
+                    </div>
                 </div>
-            """, unsafe_allow_html=True)
-            
-            if danger_list:
-                st.error(f"⚠️ CONTAINS: {', '.join(danger_list)}")
-            elif user_selected:
-                st.success("✅ Safe for you")
-            
-            with st.expander("See All Ingredients"):
-                st.write(f"This product contains: {', '.join(p['allergens'])}")
-            st.write("") # 간격 조절
-
-else:
-    st.info("👋 Welcome! Please agree to the safety disclaimer above to start your journey at Sungsimdang.")
+            `;
+            grid.innerHTML += card;
+        });
+    </script>
+</body>
+</html>
