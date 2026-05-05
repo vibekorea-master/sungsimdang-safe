@@ -9,7 +9,7 @@ st.set_page_config(
     page_title="Sungsimdang Allergy Reference Guide",
     page_icon="🥖",
     layout="wide",
-    initial_sidebar_state="expanded"
+    initial_sidebar_state="collapsed",   # 사이드바 완전히 숨김
 )
 
 if "disclaimer_accepted" not in st.session_state:
@@ -25,14 +25,12 @@ FACILITY_NOTICE = (
     "sulfites, walnuts, chicken, beef, squid, shellfish (including oysters, abalone, and mussels), "
     "and pine nuts."
 )
-LEGAL_DISCLAIMER = (
-    "This tool is NOT affiliated with Sungsimdang (성심당). "
-    "The author is NOT a medical professional, dietitian, or food scientist. "
-    "This is an independent fan reference guide for general informational purposes only — "
-    "it is NOT medical advice. Recipes and ingredients can change without notice. "
-    "ALWAYS confirm allergen information directly with Sungsimdang staff in person before purchasing. "
-    "If you have severe allergies, consult your physician before traveling."
-)
+
+ALL_ALLERGENS = sorted([
+    "Wheat", "Milk", "Egg", "Soybean", "Pork", "Beef", "Chicken",
+    "Shrimp", "Squid", "Walnut", "Peanut", "Sulfites",
+    "Shellfish (Oyster)", "Tomato"
+])
 
 # ─────────────────────────────────────────────
 # 3. BREAD DATA (29 items)
@@ -252,12 +250,18 @@ CATEGORY_COLORS = {
 }
 
 # ─────────────────────────────────────────────
-# 4. GLOBAL STYLES (shared by gate + main)
+# 4. GLOBAL STYLES — 사이드바 토글 버튼 완전 숨김
 # ─────────────────────────────────────────────
 st.markdown("""
 <style>
 header, footer, #MainMenu { visibility: hidden; }
-[data-testid="stSidebar"] { background: #fff8f0; }
+/* 사이드바 및 사이드바 토글 버튼 완전 제거 */
+[data-testid="collapsedControl"],
+[data-testid="stSidebarCollapsedControl"],
+section[data-testid="stSidebar"] { display: none !important; }
+/* 사이드바가 없으면 메인 콘텐츠 전체 너비 사용 */
+.main .block-container { max-width: 1200px; padding: 1rem 2rem; }
+/* 기본 버튼 스타일 */
 div[data-testid="stButton"] > button[kind="primary"] {
     background: linear-gradient(135deg, #d97706, #78350f);
     border: none; border-radius: 50px;
@@ -278,7 +282,7 @@ div[data-testid="stButton"] > button[kind="primary"]:hover {
 # ═════════════════════════════════════════════
 if not st.session_state.disclaimer_accepted:
 
-    # 1) 배경 이미지 CSS만 st.markdown으로 분리 (HTML 주석 없음)
+    # 배경 이미지 CSS (st.markdown — HTML 주석 없음)
     st.markdown(
         "<style>"
         ".stApp {"
@@ -290,78 +294,66 @@ if not st.session_state.disclaimer_accepted:
         unsafe_allow_html=True
     )
 
-    # 2) 게이트 카드 본문 — components.html() 사용 (HTML 주석 안전, f-string 중괄호 충돌 없음)
-    gate_html = """
-    <!DOCTYPE html>
-    <html>
-    <head><meta charset="UTF-8"></head>
-    <body style="margin:0; padding:0; background:transparent;">
-    <div style="max-width:620px; margin:40px auto 0; background:white;
-                border-radius:36px; padding:44px 40px 36px;
-                box-shadow:0 30px 70px rgba(0,0,0,0.55); text-align:center;
-                font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;">
+    # 게이트 카드 — components.html() 로 렌더링 (HTML 주석 없음, f-string 충돌 없음)
+    gate_html = (
+        '<!DOCTYPE html><html><head><meta charset="UTF-8"></head>'
+        '<body style="margin:0;padding:0;background:transparent;">'
+        '<div style="max-width:620px;margin:40px auto 0;background:white;'
+        'border-radius:36px;padding:44px 40px 36px;'
+        'box-shadow:0 30px 70px rgba(0,0,0,0.55);text-align:center;'
+        'font-family:-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif;">'
 
-        <div style="font-size:52px; margin-bottom:6px;">&#x1F956;</div>
-        <h1 style="color:#78350f; font-size:26px; font-weight:900; margin:0 0 4px;">
-            Sungsimdang Allergy Reference Guide
-        </h1>
-        <p style="color:#78350f; font-size:13px; font-weight:700; margin:0 0 22px; opacity:.75;">
-            &#49457;&#49901;&#45813; &#50508;&#47084;&#51648; &#52280;&#44256; &#44032;&#51060;&#46300; &mdash; Unofficial Fan Guide
-        </p>
+        '<div style="font-size:52px;margin-bottom:6px;">&#x1F956;</div>'
+        '<h1 style="color:#78350f;font-size:26px;font-weight:900;margin:0 0 4px;">'
+        'Sungsimdang Allergy Reference Guide</h1>'
+        '<p style="color:#78350f;font-size:13px;font-weight:700;margin:0 0 22px;opacity:.75;">'
+        '&#49457;&#49901;&#45813; &#50508;&#47084;&#51648; &#52280;&#44256; &#44032;&#51060;&#46300;'
+        ' &mdash; Unofficial Fan Guide</p>'
 
-        <div style="background:#fef2f2; border:2px solid #fca5a5;
-                    border-radius:18px; padding:20px 22px; margin-bottom:22px; text-align:left;">
-            <p style="color:#991b1b; font-size:13px; font-weight:900;
-                      letter-spacing:.5px; margin:0 0 10px;">
-                &#9888;&#65039; PLEASE READ BEFORE CONTINUING
-            </p>
-            <ul style="color:#b91c1c; font-size:13px; line-height:1.8;
-                       margin:0; padding-left:18px;">
-                <li><strong>NOT affiliated with Sungsimdang (&#49457;&#49901;&#45813;).</strong></li>
-                <li>Author is <strong>NOT a medical professional</strong>, dietitian, or food scientist.</li>
-                <li>This is a <strong>reference tool only</strong> &mdash; NOT medical advice.</li>
-                <li>Recipes can change without notice.</li>
-                <li><strong>Always confirm allergens with staff in person</strong> before purchasing.</li>
-                <li>If you have severe allergies, <strong>consult your physician</strong> before traveling.</li>
-            </ul>
-        </div>
+        '<div style="background:#fef2f2;border:2px solid #fca5a5;'
+        'border-radius:18px;padding:20px 22px;margin-bottom:20px;text-align:left;">'
+        '<p style="color:#991b1b;font-size:13px;font-weight:900;'
+        'letter-spacing:.5px;margin:0 0 10px;">&#9888;&#65039; PLEASE READ BEFORE CONTINUING</p>'
+        '<ul style="color:#b91c1c;font-size:13px;line-height:1.85;margin:0;padding-left:18px;">'
+        '<li><strong>NOT affiliated with Sungsimdang (&#49457;&#49901;&#45813;).</strong></li>'
+        '<li>Author is <strong>NOT a medical professional</strong>, dietitian, or food scientist.</li>'
+        '<li>This is a <strong>reference tool only</strong> &mdash; NOT medical advice.</li>'
+        '<li>Recipes can change without notice.</li>'
+        '<li><strong>Always confirm allergens with staff in person</strong> before purchasing.</li>'
+        '<li>If you have severe allergies, <strong>consult your physician</strong> before traveling.</li>'
+        '</ul></div>'
 
-        <div style="background:#fff7ed; border:1.5px solid #fed7aa;
-                    border-radius:14px; padding:14px 18px; margin-bottom:26px; text-align:left;">
-            <p style="color:#92400e; font-size:11px; font-weight:900;
-                      margin:0 0 6px; text-transform:uppercase; letter-spacing:.5px;">
-                &#x1F3ED; SHARED FACILITY NOTICE
-            </p>
-            <p style="color:#78350f; font-size:11.5px; line-height:1.65; margin:0; font-style:italic;">
-    """ + FACILITY_NOTICE + """
-            </p>
-        </div>
+        '<div style="background:#fff7ed;border:1.5px solid #fed7aa;'
+        'border-radius:14px;padding:14px 18px;margin-bottom:24px;text-align:left;">'
+        '<p style="color:#92400e;font-size:11px;font-weight:900;'
+        'margin:0 0 6px;text-transform:uppercase;letter-spacing:.5px;">'
+        '&#x1F3ED; SHARED FACILITY NOTICE</p>'
+        '<p style="color:#78350f;font-size:11.5px;line-height:1.65;margin:0;font-style:italic;">'
+        + FACILITY_NOTICE +
+        '</p></div>'
 
-        <p style="color:#374151; font-size:14px; font-weight:700; margin:0 0 4px;">
-            By clicking below, you confirm you have read and accept these terms.
-        </p>
-    </div>
-    </body>
-    </html>
-    """
-    components.html(gate_html, height=560, scrolling=False)
+        '<p style="color:#374151;font-size:14px;font-weight:700;margin:0 0 4px;">'
+        'By clicking below, you confirm you have read and accept these terms.</p>'
+        '</div></body></html>'
+    )
+    components.html(gate_html, height=570, scrolling=False)
 
     col_l, col_btn, col_r = st.columns([1, 1.6, 1])
     with col_btn:
-        if st.button("\u2705  I AGREE & VIEW 29 BREADS", use_container_width=True, type="primary"):
+        if st.button("✅  I AGREE & VIEW 29 BREADS", use_container_width=True, type="primary"):
             st.session_state.disclaimer_accepted = True
             st.rerun()
 
     st.markdown(
-        "<p style='text-align:center; color:rgba(255,255,255,0.55); font-size:11px; margin-top:14px;'>"
-        "Free &bull; Unofficial &bull; Always verify with Sungsimdang staff in person"
-        "</p>",
+        "<p style='text-align:center;color:rgba(255,255,255,0.55);"
+        "font-size:11px;margin-top:14px;'>"
+        "Free &bull; Unofficial &bull; Always verify with Sungsimdang staff in person</p>",
         unsafe_allow_html=True
     )
 
 
 # ═════════════════════════════════════════════
-# MAIN APP — after disclaimer accepted
+# MAIN APP
 # ═════════════════════════════════════════════
 else:
     st.markdown("""
@@ -370,488 +362,336 @@ else:
     </style>
     """, unsafe_allow_html=True)
 
-    # ── SIDEBAR ────────────────────────────────
-    with st.sidebar:
-        st.markdown("""
-        <div style="text-align:center; padding:6px 0 18px;">
-            <span style="font-size:38px;">🥖</span>
-            <h2 style="color:#78350f; font-size:18px; font-weight:900; margin:4px 0 2px;">
-                Allergy Filter
-            </h2>
-            <p style="color:#92400e; font-size:11px; margin:0;">
-                Select allergens you want to <strong>avoid</strong>
-            </p>
-        </div>
-        """, unsafe_allow_html=True)
-
-        ALL_ALLERGENS = sorted([
-            "Wheat", "Milk", "Egg", "Soybean", "Pork", "Beef", "Chicken",
-            "Shrimp", "Squid", "Walnut", "Peanut", "Sulfites",
-            "Shellfish (Oyster)", "Tomato"
-        ])
-        avoid = st.multiselect(
-            "Allergens to avoid:",
-            ALL_ALLERGENS,
-            placeholder="Tap to add allergens…"
-        )
-
-        # Category filter
-        st.markdown("---")
-        st.markdown("**🗂 Filter by Category**")
-        all_cats = sorted(set(b["category"] for b in BREAD_DATA))
-        selected_cats = st.multiselect(
-            "Show categories:",
-            all_cats,
-            default=all_cats,
-            placeholder="Select categories…"
-        )
-
-        st.markdown("---")
-
-        # Allergen quick-reference legend
-        with st.expander("📖 Allergen Symbol Guide", expanded=False):
-            legend = {
-                "🌾 Wheat": "Contains gluten",
-                "🥛 Milk": "Dairy / lactose",
-                "🥚 Egg": "All egg products",
-                "🫘 Soybean": "Soy / soy sauce",
-                "🐷 Pork": "Pork products",
-                "🐄 Beef": "Beef products",
-                "🐔 Chicken": "Poultry",
-                "🦐 Shrimp": "Crustacean shellfish",
-                "🦑 Squid": "Squid / cephalopod",
-                "🌰 Walnut": "Tree nuts",
-                "🥜 Peanut": "Groundnuts",
-                "🍷 Sulfites": "Preservatives / wine",
-                "🦪 Shellfish (Oyster)": "Bivalve shellfish",
-                "🍅 Tomato": "Tomato products",
-            }
-            for sym, desc in legend.items():
-                st.markdown(f"**{sym}** — {desc}")
-
-        st.markdown("---")
-        st.markdown("""
-        <div style="background:#fef2f2; border:1.5px solid #fca5a5;
-                    border-radius:12px; padding:12px 14px;">
-            <p style="color:#991b1b; font-size:10.5px; line-height:1.65; margin:0; font-weight:700;">
-                ⚠️ LEGAL NOTICE<br>
-                <span style="font-weight:400;">
-                This tool is NOT affiliated with Sungsimdang (성심당).
-                Author is NOT a medical professional.
-                Always confirm allergens with staff in person.
-                Not medical advice.
-                </span>
-            </p>
-        </div>
-        """, unsafe_allow_html=True)
-
-    # ── MAIN HEADER ───────────────────────────
+    # ── 헤더 ──────────────────────────────────
     st.markdown("""
-    <div style="text-align:center; padding:28px 0 10px;">
-        <h1 style="color:#78350f; font-size:32px; font-weight:900; margin:0 0 6px;">
+    <div style="text-align:center;padding:20px 0 10px;">
+        <h1 style="color:#78350f;font-size:30px;font-weight:900;margin:0 0 5px;">
             🥖 Sungsimdang Allergy Reference Guide
         </h1>
-        <p style="color:#92400e; font-size:14px; font-weight:600; margin:0;">
+        <p style="color:#92400e;font-size:13px;font-weight:600;margin:0;">
             성심당 알러지 참고 가이드 &nbsp;·&nbsp; Unofficial Fan Guide &nbsp;·&nbsp; Daejeon, Korea
         </p>
     </div>
     """, unsafe_allow_html=True)
 
-    # ── PERSISTENT LEGAL BANNER ────────────────
-    st.markdown(f"""
-    <div style="background:#fef2f2; border:2px solid #fca5a5; border-radius:14px;
-                padding:14px 20px; margin:0 0 16px; display:flex; align-items:flex-start; gap:10px;">
-        <span style="font-size:20px; flex-shrink:0;">⚠️</span>
-        <p style="color:#991b1b; font-size:12.5px; line-height:1.7; margin:0; font-weight:600;">
-            <strong>UNOFFICIAL REFERENCE ONLY — NOT AFFILIATED WITH SUNGSIMDANG.</strong>
-            Author is not a medical professional. Recipes change without notice.
-            This is NOT medical advice.
-            <strong>Always confirm allergen information directly with Sungsimdang staff in person before purchasing.</strong>
-            If you have severe allergies, consult your physician before traveling and follow their guidance regarding
-            any prescribed emergency medication.
+    # ── 법적 고지 배너 (항상 표시) ────────────
+    st.markdown(
+        '<div style="background:#fef2f2;border:2px solid #fca5a5;border-radius:14px;'
+        'padding:12px 18px;margin:0 0 14px;display:flex;align-items:flex-start;gap:10px;">'
+        '<span style="font-size:18px;flex-shrink:0;">&#9888;&#65039;</span>'
+        '<p style="color:#991b1b;font-size:12px;line-height:1.7;margin:0;font-weight:600;">'
+        '<strong>UNOFFICIAL REFERENCE ONLY — NOT AFFILIATED WITH SUNGSIMDANG.</strong> '
+        'Author is not a medical professional. This is NOT medical advice. '
+        '<strong>Always confirm allergen information directly with Sungsimdang staff '
+        'in person before purchasing.</strong> If you have severe allergies, consult '
+        'your physician before traveling.</p></div>',
+        unsafe_allow_html=True
+    )
+
+    # ── 공동 시설 주의 ─────────────────────────
+    st.warning(f"🏭 **Shared Facility Notice:** {FACILITY_NOTICE}")
+
+    # ════════════════════════════════════════════
+    # ★ 핵심: 알러지 필터 패널 — 사이드바 없이
+    #   메인 화면에 항상 표시되는 inline 패널
+    # ════════════════════════════════════════════
+    st.markdown("""
+    <div style="background:#fff8f0;border:2px solid #fed7aa;border-radius:20px;
+                padding:20px 24px 16px;margin:0 0 20px;">
+        <p style="color:#78350f;font-size:16px;font-weight:900;margin:0 0 14px;">
+            🚫 Allergy Filter &nbsp;<span style="font-size:12px;font-weight:500;color:#92400e;">
+            — Select allergens to avoid. Matching breads will be hidden.</span>
         </p>
     </div>
     """, unsafe_allow_html=True)
 
-    # ── SHARED FACILITY NOTICE ─────────────────
-    st.warning(f"🏭 **Shared Facility Notice:** {FACILITY_NOTICE}")
+    # 알러지 멀티셀렉트 — 메인 화면에 배치
+    avoid = st.multiselect(
+        "Select all allergens you need to avoid:",
+        ALL_ALLERGENS,
+        placeholder="Tap to select allergens (e.g. Wheat, Milk, Egg…)",
+        help="Breads containing any selected allergen will be hidden from the card view below."
+    )
 
-    # ── FILTER LOGIC ──────────────────────────
+    # 카테고리 필터
+    all_cats = sorted(set(b["category"] for b in BREAD_DATA))
+    col_cat_label, col_cat_select = st.columns([1, 3])
+    with col_cat_label:
+        st.markdown(
+            "<p style='color:#78350f;font-size:13px;font-weight:700;"
+            "margin:8px 0 0;'>🗂 Category:</p>",
+            unsafe_allow_html=True
+        )
+    with col_cat_select:
+        selected_cats = st.multiselect(
+            "Filter by category:",
+            all_cats,
+            default=all_cats,
+            label_visibility="collapsed",
+            placeholder="Select categories…"
+        )
+
+    st.markdown("<div style='height:4px;'></div>", unsafe_allow_html=True)
+
+    # ── 결과 요약 바 ───────────────────────────
     filtered = [
         b for b in BREAD_DATA
         if not any(a in b["allergens"] for a in avoid)
         and b["category"] in selected_cats
     ]
-    total = len(BREAD_DATA)
-    shown = len(filtered)
+    total  = len(BREAD_DATA)
+    shown  = len(filtered)
     hidden = total - shown
 
-    # ── RESULTS SUMMARY BAR ───────────────────
     col_a, col_b, col_c = st.columns(3)
     col_a.metric("✅ Showing", f"{shown} breads")
-    col_b.metric("🚫 Hidden (allergen match)", f"{hidden} breads")
-    col_c.metric("📋 Total in database", f"{total} breads")
+    col_b.metric("🚫 Hidden", f"{hidden} breads")
+    col_c.metric("📋 Total", f"{total} breads")
 
     if avoid:
-        avoid_str = ", ".join(avoid)
-        st.info(f"🔍 Active allergen filters: **{avoid_str}**  — breads containing these are hidden.")
+        st.info(f"🔍 Active filters: **{', '.join(avoid)}** — breads with these allergens are hidden.")
     else:
-        st.info("ℹ️ No allergen filter selected. Showing all breads. Use the sidebar to filter.")
+        st.info("ℹ️ No allergen filter active. All breads shown. Select allergens above to filter.")
 
-    # ── CARD GRID (HTML component) ─────────────
-    bread_json = json.dumps(filtered)
+    # ── 카드 그리드 (HTML component) ──────────
+    bread_json     = json.dumps(filtered)
     cat_colors_json = json.dumps(CATEGORY_COLORS)
 
-    html_code = f"""
-    <!DOCTYPE html>
-    <html>
-    <head>
-    <meta charset="UTF-8">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        body {{ margin:0; padding:0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }}
+    html_code = (
+        '<!DOCTYPE html><html><head><meta charset="UTF-8">'
+        '<script src="https://cdn.tailwindcss.com"></script>'
+        '<style>'
+        'body{margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;}'
+        '.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.82);'
+        'z-index:99999;align-items:center;justify-content:center;padding:20px;}'
+        '.modal-content{background:white;padding:32px 36px;border-radius:2.5rem;'
+        'max-width:660px;width:100%;position:relative;max-height:88vh;overflow-y:auto;'
+        'box-shadow:0 30px 80px rgba(0,0,0,0.55);animation:popIn .2s ease;}'
+        '@keyframes popIn{from{opacity:0;transform:scale(.93) translateY(12px)}'
+        'to{opacity:1;transform:scale(1) translateY(0)}}'
+        '.bread-card{background:white;border-radius:1.75rem;overflow:hidden;'
+        'border:1.5px solid #ffe4c4;display:flex;flex-direction:column;height:100%;'
+        'box-shadow:0 4px 18px rgba(120,53,15,.10);'
+        'transition:transform .2s,box-shadow .2s;cursor:pointer;}'
+        '.bread-card:hover{transform:translateY(-5px);'
+        'box-shadow:0 14px 36px rgba(120,53,15,.18);}'
+        '.chip{display:inline-block;padding:2px 9px;border-radius:9999px;'
+        'font-size:10px;font-weight:700;border:1px solid;'
+        'text-transform:uppercase;letter-spacing:.3px;}'
+        '.chip-neutral{background:#f9fafb;border-color:#d1d5db;color:#4b5563;}'
+        '.modal-disc{background:#fef2f2;border:1.5px solid #fca5a5;'
+        'border-radius:14px;padding:14px 16px;margin-top:18px;}'
+        '.card-grid{display:grid;'
+        'grid-template-columns:repeat(auto-fill,minmax(220px,1fr));'
+        'gap:22px;padding:8px 4px 24px;}'
+        '.empty-state{text-align:center;padding:60px 20px;color:#9ca3af;}'
+        '</style></head><body>'
 
-        /* ── Modal ── */
-        .modal-overlay {{
-            display: none; position: fixed; inset: 0;
-            background: rgba(0,0,0,0.82); z-index: 99999;
-            align-items: center; justify-content: center; padding: 20px;
-        }}
-        .modal-content {{
-            background: white; padding: 36px 40px; border-radius: 2.5rem;
-            max-width: 660px; width: 100%; position: relative;
-            max-height: 88vh; overflow-y: auto;
-            box-shadow: 0 30px 80px rgba(0,0,0,0.55);
-            animation: popIn .2s ease;
-        }}
-        @keyframes popIn {{
-            from {{ opacity:0; transform: scale(.93) translateY(12px); }}
-            to   {{ opacity:1; transform: scale(1) translateY(0); }}
-        }}
+        '<div id="modal" class="modal-overlay" onclick="closeModal()">'
+        '<div class="modal-content" onclick="event.stopPropagation()">'
+        '<button onclick="closeModal()" style="position:absolute;top:16px;right:22px;'
+        'font-size:26px;line-height:1;color:#9ca3af;background:none;border:none;'
+        'cursor:pointer;font-weight:700;">&times;</button>'
+        '<div id="m-cat" style="display:inline-block;margin-bottom:10px;padding:3px 14px;'
+        'border-radius:999px;font-size:11px;font-weight:800;'
+        'text-transform:uppercase;letter-spacing:.5px;"></div>'
+        '<h2 id="m-title" style="color:#78350f;font-size:22px;font-weight:900;margin:0 0 3px;"></h2>'
+        '<p id="m-ko" style="color:#b45309;font-size:14px;font-weight:700;margin:0 0 16px;"></p>'
+        '<div style="display:flex;gap:12px;margin-bottom:16px;flex-wrap:wrap;">'
+        '<div style="background:#fff7ed;border:1.5px solid #fed7aa;border-radius:12px;'
+        'padding:10px 16px;flex:1;min-width:110px;">'
+        '<p style="color:#92400e;font-size:10px;font-weight:800;text-transform:uppercase;'
+        'letter-spacing:.5px;margin:0 0 3px;">&#x1F4B0; Price</p>'
+        '<p id="m-price" style="color:#78350f;font-size:20px;font-weight:900;margin:0;"></p></div>'
+        '<div style="background:#f0fdf4;border:1.5px solid #86efac;border-radius:12px;'
+        'padding:10px 16px;flex:2;min-width:150px;">'
+        '<p style="color:#166534;font-size:10px;font-weight:800;text-transform:uppercase;'
+        'letter-spacing:.5px;margin:0 0 4px;">&#x1F956; Description</p>'
+        '<p id="m-desc" style="color:#14532d;font-size:12px;line-height:1.55;margin:0;"></p></div>'
+        '</div>'
+        '<div style="margin-bottom:14px;">'
+        '<p style="color:#92400e;font-size:10px;font-weight:800;text-transform:uppercase;'
+        'letter-spacing:.5px;margin:0 0 7px;">&#x1F33E; Ingredient Origin Info</p>'
+        '<p id="m-origin" style="background:#fafafa;border:1px solid #e5e7eb;'
+        'border-radius:14px;padding:14px 16px;font-size:13px;'
+        'line-height:1.7;color:#374151;margin:0;"></p></div>'
+        '<div style="margin-bottom:6px;">'
+        '<p style="color:#92400e;font-size:10px;font-weight:800;text-transform:uppercase;'
+        'letter-spacing:.5px;margin:0 0 8px;">&#x1F6AB; Allergens in This Item</p>'
+        '<div id="m-allergens" style="display:flex;flex-wrap:wrap;gap:6px;"></div></div>'
+        '<div class="modal-disc">'
+        '<p style="color:#991b1b;font-size:11px;font-weight:800;margin:0 0 5px;">'
+        '&#9888;&#65039; IMPORTANT DISCLAIMER</p>'
+        '<p style="color:#b91c1c;font-size:11px;line-height:1.65;margin:0;">'
+        'This tool is <strong>NOT affiliated with Sungsimdang</strong>. '
+        'Author is <strong>NOT a medical professional</strong>. '
+        'This is <strong>reference information only</strong> — NOT medical advice. '
+        'Always confirm allergen information <strong>directly with Sungsimdang staff '
+        'in person</strong> before purchasing.</p>'
+        '<p style="color:#b91c1c;font-size:11px;line-height:1.65;margin:6px 0 0;'
+        'font-style:italic;">&#x1F3ED; '
+        + FACILITY_NOTICE +
+        '</p></div>'
+        '</div></div>'
 
-        /* ── Card ── */
-        .bread-card {{
-            background: white; border-radius: 1.75rem; overflow: hidden;
-            border: 1.5px solid #ffe4c4; display: flex; flex-direction: column;
-            height: 100%; box-shadow: 0 4px 18px rgba(120,53,15,0.10);
-            transition: transform .2s, box-shadow .2s; cursor: pointer;
-        }}
-        .bread-card:hover {{
-            transform: translateY(-5px);
-            box-shadow: 0 14px 36px rgba(120,53,15,0.18);
-        }}
+        '<div class="card-grid" id="card-grid"></div>'
+        '<div id="empty-state" class="empty-state" style="display:none;">'
+        '<p style="font-size:44px;margin:0 0 12px;">&#x1F645;</p>'
+        '<p style="font-size:17px;font-weight:700;color:#78350f;margin:0 0 8px;">'
+        'No breads match your current filters.</p>'
+        '<p style="font-size:13px;">Try removing some allergens or changing the category filter.</p>'
+        '</div>'
 
-        /* ── Allergen chip ── */
-        .chip {{
-            display:inline-block; padding: 2px 9px;
-            border-radius: 9999px; font-size: 10px; font-weight: 700;
-            border: 1px solid; text-transform: uppercase; letter-spacing: .3px;
-        }}
-        .chip-avoided {{
-            background: #fef2f2; border-color: #fca5a5; color: #991b1b;
-        }}
-        .chip-ok {{
-            background: #f0fdf4; border-color: #86efac; color: #166534;
-        }}
-        .chip-neutral {{
-            background: #f9fafb; border-color: #d1d5db; color: #4b5563;
-        }}
+        '<script>'
+        f'const data={bread_json};'
+        f'const catColors={cat_colors_json};'
+        f'const baseUrl="{GITHUB_BASE_URL}";'
 
-        /* ── Disclaimer bar in modal ── */
-        .modal-disclaimer {{
-            background: #fef2f2; border: 1.5px solid #fca5a5;
-            border-radius: 14px; padding: 14px 16px; margin-top: 20px;
-        }}
+        'function openModal(id){'
+        'const b=data.find(x=>x.id===id);if(!b)return;'
+        'const cc=catColors[b.category]||{bg:"#f3f4f6",border:"#d1d5db",text:"#374151"};'
+        'const badge=document.getElementById("m-cat");'
+        'badge.innerText=b.category;'
+        'badge.style.background=cc.bg;'
+        'badge.style.border="1.5px solid "+cc.border;'
+        'badge.style.color=cc.text;'
+        'document.getElementById("m-title").innerText=b.name;'
+        'document.getElementById("m-ko").innerText=b.ko;'
+        'document.getElementById("m-price").innerText="\\u20A9"+b.price+" KRW";'
+        'document.getElementById("m-desc").innerText=b.description;'
+        'document.getElementById("m-origin").innerText=b.origin;'
+        'const c=document.getElementById("m-allergens");c.innerHTML="";'
+        'b.allergens.forEach(a=>{const s=document.createElement("span");'
+        's.className="chip chip-neutral";s.innerText=a;c.appendChild(s);});'
+        'document.getElementById("modal").style.display="flex";'
+        'document.body.style.overflow="hidden";}'
 
-        /* ── Empty state ── */
-        .empty-state {{
-            text-align:center; padding: 60px 20px; color:#9ca3af;
-        }}
+        'function closeModal(){'
+        'document.getElementById("modal").style.display="none";'
+        'document.body.style.overflow="";}'
 
-        /* ── Grid ── */
-        .card-grid {{
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
-            gap: 24px;
-            padding: 12px 4px 24px;
-        }}
-    </style>
-    </head>
-    <body>
+        'document.addEventListener("keydown",e=>{if(e.key==="Escape")closeModal();});'
 
-    <!-- MODAL -->
-    <div id="modal" class="modal-overlay" onclick="closeModal()">
-        <div class="modal-content" onclick="event.stopPropagation()">
-            <button onclick="closeModal()"
-                style="position:absolute;top:18px;right:24px;font-size:28px;
-                       line-height:1;color:#9ca3af;background:none;border:none;cursor:pointer;
-                       font-weight:700;">×</button>
-
-            <!-- Category badge -->
-            <div id="m-cat-badge" style="display:inline-block;margin-bottom:10px;
-                 padding:3px 14px;border-radius:999px;font-size:11px;font-weight:800;
-                 text-transform:uppercase;letter-spacing:.5px;"></div>
-
-            <h2 id="m-title" style="color:#78350f;font-size:24px;font-weight:900;margin:0 0 3px;"></h2>
-            <p id="m-ko" style="color:#b45309;font-size:14px;font-weight:700;margin:0 0 18px;"></p>
-
-            <div style="display:flex;gap:12px;margin-bottom:18px;flex-wrap:wrap;">
-                <div style="background:#fff7ed;border:1.5px solid #fed7aa;
-                            border-radius:12px;padding:10px 16px;flex:1;min-width:120px;">
-                    <p style="color:#92400e;font-size:10px;font-weight:800;
-                              text-transform:uppercase;letter-spacing:.5px;margin:0 0 3px;">💰 Price</p>
-                    <p id="m-price" style="color:#78350f;font-size:20px;font-weight:900;margin:0;"></p>
-                </div>
-                <div style="background:#f0fdf4;border:1.5px solid #86efac;
-                            border-radius:12px;padding:10px 16px;flex:2;min-width:160px;">
-                    <p style="color:#166534;font-size:10px;font-weight:800;
-                              text-transform:uppercase;letter-spacing:.5px;margin:0 0 4px;">🥖 Description</p>
-                    <p id="m-desc" style="color:#14532d;font-size:12px;line-height:1.55;margin:0;"></p>
-                </div>
-            </div>
-
-            <div style="margin-bottom:14px;">
-                <p style="color:#92400e;font-size:10px;font-weight:800;
-                          text-transform:uppercase;letter-spacing:.5px;margin:0 0 7px;">
-                    🌾 Ingredient Origin Info
-                </p>
-                <p id="m-origin"
-                   style="background:#fafafa;border:1px solid #e5e7eb;
-                          border-radius:14px;padding:14px 16px;
-                          font-size:13px;line-height:1.7;color:#374151;margin:0;"></p>
-            </div>
-
-            <div style="margin-bottom:6px;">
-                <p style="color:#92400e;font-size:10px;font-weight:800;
-                          text-transform:uppercase;letter-spacing:.5px;margin:0 0 8px;">
-                    🚫 Allergens in This Item
-                </p>
-                <div id="m-allergens" style="display:flex;flex-wrap:wrap;gap:6px;"></div>
-            </div>
-
-            <div class="modal-disclaimer">
-                <p style="color:#991b1b;font-size:11px;font-weight:800;margin:0 0 5px;">
-                    ⚠️ IMPORTANT DISCLAIMER
-                </p>
-                <p style="color:#b91c1c;font-size:11px;line-height:1.65;margin:0;">
-                    This tool is <strong>NOT affiliated with Sungsimdang</strong>. Author is
-                    <strong>NOT a medical professional</strong>.
-                    This is <strong>reference information only</strong> — NOT medical advice.
-                    Always confirm allergen information <strong>directly with Sungsimdang staff
-                    in person</strong> before purchasing. Shared-facility cross-contamination
-                    is possible at any bakery. Recipes may change without notice.
-                </p>
-                <p style="color:#b91c1c;font-size:11px;line-height:1.65;margin:6px 0 0;font-style:italic;">
-                    🏭 {FACILITY_NOTICE}
-                </p>
-            </div>
-        </div>
-    </div>
-
-    <!-- CARD GRID -->
-    <div class="card-grid" id="card-grid"></div>
-    <div id="empty-state" class="empty-state" style="display:none;">
-        <p style="font-size:48px;margin:0 0 12px;">🙅</p>
-        <p style="font-size:18px;font-weight:700;color:#78350f;margin:0 0 8px;">
-            No breads match your current filters.
-        </p>
-        <p style="font-size:14px;">Try removing some allergens or changing the category filter.</p>
-    </div>
-
-    <script>
-    const data        = {bread_json};
-    const catColors   = {cat_colors_json};
-    const baseUrl     = "{GITHUB_BASE_URL}";
-
-    function openModal(id) {{
-        const b = data.find(x => x.id === id);
-        if (!b) return;
-
-        // Category badge
-        const cc = catColors[b.category] || {{bg:'#f3f4f6',border:'#d1d5db',text:'#374151'}};
-        const badge = document.getElementById('m-cat-badge');
-        badge.innerText = b.category;
-        badge.style.background = cc.bg;
-        badge.style.border     = '1.5px solid ' + cc.border;
-        badge.style.color      = cc.text;
-
-        document.getElementById('m-title').innerText   = b.name;
-        document.getElementById('m-ko').innerText      = b.ko;
-        document.getElementById('m-price').innerText   = '₩' + b.price + ' KRW';
-        document.getElementById('m-desc').innerText    = b.description;
-        document.getElementById('m-origin').innerText  = b.origin;
-
-        // Allergen chips
-        const container = document.getElementById('m-allergens');
-        container.innerHTML = '';
-        b.allergens.forEach(a => {{
-            const chip = document.createElement('span');
-            chip.className = 'chip chip-neutral';
-            chip.innerText = a;
-            container.appendChild(chip);
-        }});
-
-        document.getElementById('modal').style.display = 'flex';
-        document.body.style.overflow = 'hidden';
-    }}
-
-    function closeModal() {{
-        document.getElementById('modal').style.display = 'none';
-        document.body.style.overflow = '';
-    }}
-
-    // Close with Escape key
-    document.addEventListener('keydown', e => {{ if (e.key === 'Escape') closeModal(); }});
-
-    // Build cards
-    const grid = document.getElementById('card-grid');
-    if (data.length === 0) {{
-        document.getElementById('empty-state').style.display = 'block';
-    }} else {{
-        data.forEach(bread => {{
-            const cc  = catColors[bread.category] || {{bg:'#f3f4f6',border:'#d1d5db',text:'#374151'}};
-            const img = baseUrl + 'images/' + bread.id + '. ' + bread.name + '.png';
-
-            // Show up to 4 allergen chips on card
-            const chipHtml = bread.allergens.slice(0, 4).map(a =>
-                `<span class="chip chip-neutral">${{a}}</span>`
-            ).join('') + (bread.allergens.length > 4
-                ? `<span style="font-size:10px;color:#9ca3af;font-weight:700;">+${{bread.allergens.length-4}} more</span>`
-                : '');
-
-            const card = document.createElement('div');
-            card.className = 'bread-card';
-            card.onclick   = () => openModal(bread.id);
-            card.innerHTML = `
-                <!-- Image -->
-                <div style="height:190px;overflow:hidden;background:#f5f5f0;position:relative;">
-                    <img src="${{encodeURI(img)}}"
-                         style="width:100%;height:100%;object-fit:cover;"
-                         onerror="this.parentElement.innerHTML='<div style=\\'height:100%;display:flex;align-items:center;justify-content:center;font-size:48px;\\'>🥖</div>';">
-                    <!-- Category badge -->
-                    <div style="position:absolute;top:10px;left:10px;
-                                background:${{cc.bg}};border:1.5px solid ${{cc.border}};color:${{cc.text}};
-                                border-radius:999px;font-size:9px;font-weight:800;
-                                padding:2px 10px;text-transform:uppercase;letter-spacing:.4px;">
-                        ${{bread.category}}
-                    </div>
-                    <!-- ID badge -->
-                    <div style="position:absolute;top:10px;right:10px;
-                                background:rgba(0,0,0,0.45);color:white;
-                                border-radius:999px;font-size:9px;font-weight:700;
-                                padding:2px 8px;">#${{bread.id}}</div>
-                </div>
-
-                <!-- Body -->
-                <div style="padding:16px 18px 20px;display:flex;flex-direction:column;flex:1;">
-                    <h3 style="font-size:14px;font-weight:800;color:#1f2937;
-                               margin:0 0 2px;line-height:1.3;">${{bread.name}}</h3>
-                    <p style="font-size:11px;color:#b45309;font-weight:700;
-                              margin:0 0 6px;opacity:.75;">${{bread.ko}}</p>
-                    <p style="font-size:11px;color:#6b7280;line-height:1.5;
-                              margin:0 0 10px;flex:1;">${{bread.description}}</p>
-
-                    <!-- Price -->
-                    <div style="font-size:15px;font-weight:900;color:#d97706;margin-bottom:9px;">
-                        ₩${{bread.price}}
-                    </div>
-
-                    <!-- Allergen chips -->
-                    <div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:12px;">
-                        ${{chipHtml}}
-                    </div>
-
-                    <!-- CTA Button -->
-                    <button style="width:100%;background:linear-gradient(135deg,#d97706,#78350f);
-                                   color:white;border:none;border-radius:1rem;
-                                   padding:10px;font-size:11px;font-weight:800;
-                                   cursor:pointer;letter-spacing:.3px;
-                                   transition:opacity .15s;"
-                            onmouseover="this.style.opacity='.85'"
-                            onmouseout="this.style.opacity='1'">
-                        View Full Details ↗
-                    </button>
-                </div>
-            `;
-            grid.appendChild(card);
-        }});
-    }}
-    </script>
-    </body>
-    </html>
-    """
+        'const grid=document.getElementById("card-grid");'
+        'if(data.length===0){'
+        'document.getElementById("empty-state").style.display="block";'
+        '}else{'
+        'data.forEach(bread=>{'
+        'const cc=catColors[bread.category]||{bg:"#f3f4f6",border:"#d1d5db",text:"#374151"};'
+        'const img=baseUrl+"images/"+bread.id+". "+bread.name+".png";'
+        'const chipHtml=bread.allergens.slice(0,4).map('
+        'a=>`<span class="chip chip-neutral">${a}</span>`).join("")'
+        '+(bread.allergens.length>4'
+        '?`<span style="font-size:10px;color:#9ca3af;font-weight:700;">'
+        '+${bread.allergens.length-4} more</span>`:"");'
+        'const card=document.createElement("div");'
+        'card.className="bread-card";'
+        'card.onclick=()=>openModal(bread.id);'
+        'card.innerHTML=`'
+        '<div style="height:185px;overflow:hidden;background:#f5f5f0;position:relative;">'
+        '<img src="${encodeURI(img)}" style="width:100%;height:100%;object-fit:cover;"'
+        ' onerror="this.style.display=\'none\';this.parentElement.style.display=\'flex\';'
+        'this.parentElement.style.alignItems=\'center\';'
+        'this.parentElement.style.justifyContent=\'center\';'
+        'this.parentElement.innerHTML=\'<span style=font-size:44px>&#x1F956;</span>\';">'
+        '<div style="position:absolute;top:8px;left:8px;background:${cc.bg};'
+        'border:1.5px solid ${cc.border};color:${cc.text};border-radius:999px;'
+        'font-size:9px;font-weight:800;padding:2px 10px;text-transform:uppercase;">'
+        '${bread.category}</div>'
+        '<div style="position:absolute;top:8px;right:8px;background:rgba(0,0,0,0.42);'
+        'color:white;border-radius:999px;font-size:9px;font-weight:700;'
+        'padding:2px 8px;">#${bread.id}</div>'
+        '</div>'
+        '<div style="padding:14px 16px 18px;display:flex;flex-direction:column;flex:1;">'
+        '<h3 style="font-size:14px;font-weight:800;color:#1f2937;'
+        'margin:0 0 2px;line-height:1.3;">${bread.name}</h3>'
+        '<p style="font-size:11px;color:#b45309;font-weight:700;'
+        'margin:0 0 5px;opacity:.75;">${bread.ko}</p>'
+        '<p style="font-size:11px;color:#6b7280;line-height:1.5;'
+        'margin:0 0 9px;flex:1;">${bread.description}</p>'
+        '<div style="font-size:15px;font-weight:900;color:#d97706;margin-bottom:8px;">'
+        '&#x20A9;${bread.price}</div>'
+        '<div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:11px;">'
+        '${chipHtml}</div>'
+        '<button style="width:100%;background:linear-gradient(135deg,#d97706,#78350f);'
+        'color:white;border:none;border-radius:1rem;padding:10px;font-size:11px;'
+        'font-weight:800;cursor:pointer;letter-spacing:.3px;transition:opacity .15s;"'
+        ' onmouseover="this.style.opacity=\'.85\'"'
+        ' onmouseout="this.style.opacity=\'1\'">'
+        'View Full Details &#x2197;</button>'
+        '</div>`;'
+        'grid.appendChild(card);});}'
+        '</script>'
+        '</body></html>'
+    )
 
     components.html(html_code, height=1350, scrolling=True)
 
-    # ── SUMMARY TABLE ─────────────────────────
+    # ── 전체 요약 테이블 ──────────────────────
     st.markdown("---")
     st.markdown("### 📊 Complete Reference Table — All 29 Breads")
     st.caption(
-        "Showing full database regardless of active filters. "
-        "For reference only — always verify allergen information with Sungsimdang staff in person."
+        "Full database shown regardless of active filters above. "
+        "Reference only — always verify allergen info with Sungsimdang staff in person."
     )
-
     table_rows = []
     for b in BREAD_DATA:
         flagged = any(a in b["allergens"] for a in avoid)
         table_rows.append({
-            "Status":      "🚫 Hidden" if flagged else "✅ Shown",
-            "#":           b["id"],
-            "English Name": b["name"],
+            "Status":         "🚫 Hidden" if flagged else "✅ Shown",
+            "#":              b["id"],
+            "English Name":   b["name"],
             "Korean (한국어)": b["ko"],
-            "Category":    b["category"],
-            "Price (KRW)": f"₩{b['price']}",
-            "Allergens":   ", ".join(b["allergens"]),
-            "Key Origins": b["origin"],
+            "Category":       b["category"],
+            "Price (KRW)":    f"₩{b['price']}",
+            "Allergens":      ", ".join(b["allergens"]),
+            "Key Origins":    b["origin"],
         })
     st.dataframe(table_rows, use_container_width=True, hide_index=True)
 
-    # ── EMERGENCY INFO ─────────────────────────
+    # ── 응급 정보 ─────────────────────────────
     st.markdown("---")
     with st.expander("🚨 Emergency Information for Travelers in Korea", expanded=False):
-        st.markdown("""
-        <div style="background:#fef2f2;border:2px solid #fca5a5;
-                    border-radius:16px;padding:20px 24px;">
-            <p style="color:#991b1b;font-size:16px;font-weight:900;margin:0 0 12px;">
-                🚨 Save These Numbers Before You Travel
-            </p>
-            <ul style="color:#b91c1c;font-size:14px;line-height:2;margin:0 0 12px;padding-left:20px;">
-                <li><strong>119</strong> — National Emergency (Fire / Ambulance / Medical).
-                    Say "English please" for translation support.</li>
-                <li><strong>1339</strong> — Korea Disease Control & Prevention Agency Medical Hotline.</li>
-                <li><strong>1330</strong> — Korea Travel Helpline (Korea Tourism Organization).
-                    Available 24/7 in English, Japanese, Chinese, and more.</li>
-            </ul>
-            <p style="color:#991b1b;font-size:13px;font-weight:700;margin:0;">
-                If you feel unwell after eating, call 119 immediately and follow your physician's
-                prior guidance regarding any prescribed emergency medication.
-            </p>
-        </div>
-        """, unsafe_allow_html=True)
+        st.markdown(
+            '<div style="background:#fef2f2;border:2px solid #fca5a5;'
+            'border-radius:16px;padding:20px 24px;">'
+            '<p style="color:#991b1b;font-size:16px;font-weight:900;margin:0 0 12px;">'
+            '&#x1F6A8; Save These Numbers Before You Travel</p>'
+            '<ul style="color:#b91c1c;font-size:14px;line-height:2;'
+            'margin:0 0 12px;padding-left:20px;">'
+            '<li><strong>119</strong> — National Emergency (Fire / Ambulance / Medical). '
+            'Say "English please" for translation support.</li>'
+            '<li><strong>1339</strong> — Korea Disease Control &amp; Prevention Agency '
+            'Medical Hotline.</li>'
+            '<li><strong>1330</strong> — Korea Travel Helpline (Korea Tourism Organization). '
+            'Available 24/7 in English, Japanese, Chinese, and more.</li>'
+            '</ul>'
+            '<p style="color:#991b1b;font-size:13px;font-weight:700;margin:0;">'
+            'If you feel unwell after eating, call 119 immediately.</p>'
+            '</div>',
+            unsafe_allow_html=True
+        )
 
-    # ── FOOTER DISCLAIMER ─────────────────────
+    # ── 하단 전체 면책 조항 ────────────────────
     st.markdown("---")
-    st.markdown(f"""
-    <div style="background:#fef2f2;border:2px solid #fca5a5;
-                border-radius:16px;padding:20px 24px;margin-bottom:20px;">
-        <p style="color:#991b1b;font-size:12px;font-weight:900;
-                  letter-spacing:.5px;margin:0 0 10px;">
-            ⚠️ FULL DISCLAIMER & TERMS OF USE
-        </p>
-        <p style="color:#b91c1c;font-size:11.5px;line-height:1.75;margin:0;">
-            This guide and the linked tool are <strong>independent, unofficial fan resources</strong>
-            and are <strong>NOT affiliated with, endorsed by, or sponsored by Sungsimdang (성심당)</strong>.
-            The author is <strong>NOT a medical professional, registered dietitian, or food scientist</strong>.
-            This tool is provided for general informational and language-accessibility purposes only.
-            It is <strong>NOT medical advice</strong>. Information may be outdated, incomplete, or contain
-            translation inaccuracies. Sungsimdang may update recipes or suppliers without notice.
-            Shared-facility cross-contamination is possible at any bakery. The author makes no warranty
-            of accuracy or completeness. <strong>By using this tool, you accept sole responsibility
-            for any decisions made regarding food consumption.</strong> Always confirm allergen
-            information directly with Sungsimdang staff in person before purchasing.
-            If you have severe allergies, consult your physician before traveling.
-            In a medical emergency in Korea, call <strong>119</strong>.
-            For travel assistance, call <strong>1330</strong>.
-        </p>
-    </div>
-    """, unsafe_allow_html=True)
+    st.markdown(
+        '<div style="background:#fef2f2;border:2px solid #fca5a5;'
+        'border-radius:16px;padding:20px 24px;margin-bottom:20px;">'
+        '<p style="color:#991b1b;font-size:12px;font-weight:900;'
+        'letter-spacing:.5px;margin:0 0 10px;">&#9888;&#65039; FULL DISCLAIMER &amp; TERMS OF USE</p>'
+        '<p style="color:#b91c1c;font-size:11.5px;line-height:1.75;margin:0;">'
+        'This guide is an <strong>independent, unofficial fan resource</strong> and is '
+        '<strong>NOT affiliated with, endorsed by, or sponsored by Sungsimdang (&#49457;&#49901;&#45813;)</strong>. '
+        'The author is <strong>NOT a medical professional, registered dietitian, or food scientist</strong>. '
+        'This tool is provided for general informational and language-accessibility purposes only. '
+        'It is <strong>NOT medical advice</strong>. Information may be outdated, incomplete, or contain '
+        'translation inaccuracies. Sungsimdang may update recipes or suppliers without notice. '
+        'Shared-facility cross-contamination is possible at any bakery. '
+        '<strong>By using this tool, you accept sole responsibility for any decisions '
+        'made regarding food consumption.</strong> Always confirm allergen information '
+        'directly with Sungsimdang staff in person before purchasing. '
+        'In a medical emergency in Korea, call <strong>119</strong>. '
+        'For travel assistance, call <strong>1330</strong>.'
+        '</p></div>',
+        unsafe_allow_html=True
+    )
