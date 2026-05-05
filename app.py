@@ -2,96 +2,80 @@ import streamlit as st
 import streamlit.components.v1 as components
 import json
 
-# 1. 페이지 설정 및 세션 상태 초기화
+# 1. Page Config & Session State
 st.set_page_config(page_title="Sungsimdang Allergy Safe Guide", layout="wide")
 
-# 동의 여부를 확인하는 세션 상태 설정
 if 'disclaimer_accepted' not in st.session_state:
     st.session_state.disclaimer_accepted = False
 
-# 2. 기본 설정 (GitHub 및 블로그 주소)
+# 2. Key Settings
 BLOG_BASE_URL = "https://your-blog.tistory.com" # 실제 티스토리 주소
 GITHUB_BASE_URL = "https://raw.githubusercontent.com/dongkeuncho-cmyk/sungsimdang-safe/main/"
 
 # ---------------------------------------------------------
-# [GATE] 면책 조항 동의 전 화면
+# CASE A: Safety Gate (면책 조항 동의 창)
 # ---------------------------------------------------------
-if st.session_state.disclaimer_accepted == False:
-    # 배경 이미지와 박스 디자인 (CSS)
+if not st.session_state.disclaimer_accepted:
     st.markdown(f"""
         <style>
-        /* 배경에 튀김소보로 티저 이미지 배치 */
         .stApp {{
             background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), 
                         url('{GITHUB_BASE_URL}images/29. Twigim Soboro.png');
-            background-size: cover;
-            background-position: center;
-            background-attachment: fixed;
+            background-size: cover; background-position: center; background-attachment: fixed;
         }}
-        /* 흰색 면책 조항 박스 */
+        .gate-wrapper {{ display: flex; justify-content: center; align-items: center; padding-top: 50px; }}
         .gate-card {{
-            background-color: white;
-            padding: 40px;
-            border-radius: 35px;
-            max-width: 600px;
-            margin: 80px auto 20px auto;
-            text-align: center;
-            box-shadow: 0 30px 60px rgba(0,0,0,0.6);
+            background-color: white; padding: 40px; border-radius: 40px;
+            max-width: 600px; width: 90%; text-align: center;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.5);
         }}
-        .gate-title {{ color: #78350f; font-size: 32px; font-weight: 900; margin-bottom: 15px; }}
-        .gate-text {{ color: #374151; font-size: 16px; line-height: 1.6; margin-bottom: 25px; }}
-        .warning-inner {{ 
+        .gate-title {{ color: #78350f; font-size: 32px; font-weight: 800; margin-bottom: 15px; }}
+        .warning-box {{ 
             background-color: #fef2f2; border: 2px solid #fee2e2; 
-            padding: 20px; border-radius: 20px; margin-bottom: 25px;
+            padding: 20px; border-radius: 20px; margin-bottom: 20px;
         }}
-        .agreement-notice {{ 
-            color: #000000 !important; 
-            font-weight: 900 !important; 
-            font-size: 17px !important;
-            margin-bottom: 10px;
-            display: block;
+        .agreement-text {{ 
+            color: #000000 !important; font-weight: 900 !important; 
+            font-size: 16px !important; display: block; margin-bottom: 20px;
         }}
-        /* Streamlit 기본 메뉴 숨기기 */
-        #MainMenu {{visibility: hidden;}}
-        header {{visibility: hidden;}}
-        footer {{visibility: hidden;}}
         </style>
-        <div class="gate-card">
-            <div class="gate-title">🥖 Safety First</div>
-            <p class="gate-text">To browse our 29 signature breads safely and access the allergy filters, please agree to our terms of use.</p>
-            <div class="warning-inner">
-                <p style="color: #991b1b; font-weight: 800; margin: 0; font-size: 15px; line-height: 1.6;">
-                    LEGAL DISCLAIMER:<br>
-                    This guide is for reference ONLY. The user assumes all risks. 
-                    Ingredients may change; always verify with staff on-site.
-                </p>
+        <div class="gate-wrapper">
+            <div class="gate-card">
+                <div class="gate-title">🥖 Safety First</div>
+                <p style="color: #4b5563; margin-bottom: 20px;">Welcome to the most accurate guide for Sungsimdang Breads.</p>
+                <div class="warning-box">
+                    <p style="color: #991b1b; font-weight: 800; margin: 0; font-size: 15px; line-height: 1.6;">
+                        LEGAL DISCLAIMER:<br>
+                        This guide is for reference ONLY. The user assumes all risks. 
+                        Always verify ingredients with staff on-site.
+                    </p>
+                </div>
+                <span class="agreement-text">By clicking the button below, you agree to our terms.</span>
             </div>
-            <span class="agreement-notice">By clicking the button below, you agree to our terms.</span>
         </div>
     """, unsafe_allow_html=True)
 
-    # 버튼을 박스 바로 아래에 배치
     _, col_btn, _ = st.columns([1, 1.2, 1])
     with col_btn:
-        # 이 버튼을 클릭해야만 st.session_state가 True로 바뀝니다.
-        if st.button("✅ I AGREE & ENTER GUIDE", use_container_width=True, type="primary"):
+        if st.button("✅ I AGREE & VIEW 29 BREADS", use_container_width=True, type="primary"):
             st.session_state.disclaimer_accepted = True
-            st.rerun() # 화면을 즉시 새로고침하여 본문으로 진입
+            st.rerun()
 
 # ---------------------------------------------------------
-# [MAIN] 면책 조항 동의 후 화면
+# CASE B: Main Application (동의 후 진입)
 # ---------------------------------------------------------
 else:
-    # 3. 사이드바: 직관적인 필터
+    # 3. Sidebar: 직관적인 설명 추가
     st.sidebar.title("🚫 Your Allergies")
-    all_ingredients = sorted([
-        "Wheat", "Milk", "Egg", "Soybean", "Pork", "Beef", "Chicken", 
-        "Shrimp", "Squid", "Walnut", "Peanut", "Sulfites", 
-        "Shellfish (Oyster)", "Tomato"
-    ])
-    avoid = st.sidebar.multiselect("I am allergic to:", all_ingredients, help="Select to hide items.")
+    st.sidebar.markdown("""
+    **How to use:** Select the ingredients you are **allergic to**.  
+    Breads containing those items will be **automatically hidden** from the list.
+    """)
 
-    # 4. 전체 29종 데이터 (한/영 병기 [cite: 4-157])
+    all_ingredients = sorted(["Wheat", "Milk", "Egg", "Soybean", "Pork", "Beef", "Chicken", "Shrimp", "Squid", "Walnut", "Peanut", "Sulfites", "Shellfish (Oyster)", "Tomato"])
+    avoid = st.sidebar.multiselect("I am allergic to:", all_ingredients)
+
+    # 4. Full Bread Data (29 Items [cite: 4-157])
     bread_data = [
         {"id": 1, "name": "Malami Croquette", "ko": "마라미고로케", "price": "3,000", "allergens": ["Egg", "Chicken", "Soybean", "Pork", "Wheat", "Shrimp", "Beef", "Squid", "Milk"], "img": "images/1. Malami Croquette.png", "desc": "Spicy Mala Xiangguo sauce with minced pork."},
         {"id": 2, "name": "Pain au Chocolat", "ko": "뺑오쇼콜라", "price": "3,000", "allergens": ["Egg", "Soybean", "Wheat", "Milk"], "img": "images/2. Pain au Chocolat.png", "desc": "Crispy pastry with French chocolate sticks."},
@@ -124,14 +108,19 @@ else:
         {"id": 29, "name": "Twigim Soboro", "ko": "튀김소보로", "price": "1,700", "allergens": ["Egg", "Soybean", "Wheat", "Sulfites", "Milk"], "img": "images/29. Twigim Soboro.png", "desc": "Legendary fried red bean soboro bun."}
     ]
 
+    # 5. 메인 레이아웃 및 필터 메시지
     st.markdown("<h1 style='text-align: center; color: #78350f;'>🥖 Sungsimdang Safe Guide</h1>", unsafe_allow_html=True)
-    
-    # 공통 제조시설 고지 배너 [cite: 2]
     st.warning("**🏭 Shared Facility Notice:** All products are manufactured in a facility processing Eggs, Milk, Buckwheat, Peanuts, Soybeans, Wheat, Mackerel, Crab, Shrimp, Pork, Peaches, Tomatoes, Sulfites, Walnuts, Chicken, Beef, Squid, Shellfish, and Pine nuts.")
 
     filtered = [b for b in bread_data if not any(a in b["allergens"] for a in avoid)]
     
-    # 프리미엄 빵 카드 그리드
+    # 동적 결과 안내 (가독성 보완 핵심 패치)
+    if avoid:
+        st.success(f"✅ **Safe Results:** Showing **{len(filtered)}** breads WITHOUT: **{', '.join(avoid)}**")
+    else:
+        st.info(f"ℹ️ Showing all **{len(filtered)}** signature breads. Select allergens in the sidebar to filter.")
+
+    # 6. Bread Grid (Premium HTML/Tailwind)
     bread_json = json.dumps(filtered)
     html_code = f"""
     <script src="https://cdn.tailwindcss.com"></script>
@@ -142,8 +131,8 @@ else:
             const blogUrl = "{BLOG_BASE_URL}";
             data.forEach(bread => {{
                 document.write(`
-                    <div class="bg-white rounded-[2rem] overflow-hidden border border-orange-100 flex flex-col h-full shadow-lg">
-                        <div class="h-56 overflow-hidden bg-gray-100 relative">
+                    <div class="bg-white rounded-[2rem] overflow-hidden border border-orange-100 flex flex-col h-full shadow-lg transform transition hover:-translate-y-2">
+                        <div class="h-60 overflow-hidden bg-gray-100 relative">
                             <img src="${{encodeURI(baseUrl + bread.img)}}" 
                                  style="width: 115%; height: 115%; object-fit: cover; object-position: left top; max-width: none;"
                                  onerror="this.src='https://via.placeholder.com/400x300?text=Syncing...';">
@@ -156,7 +145,7 @@ else:
                                 ${{bread.allergens.map(a => `<span class="px-2 py-0.5 bg-orange-50 text-orange-600 text-[8px] rounded-full border border-orange-200 font-bold">${{a}}</span>`).join('')}}
                             </div>
                             <p class="text-xs text-gray-500 mb-6 flex-grow italic">"${{bread.desc}}"</p>
-                            <a href="${{blogUrl}}" target="_blank" class="block w-full text-center bg-[#78350f] text-white py-3 rounded-2xl text-[10px] font-bold hover:bg-[#92400e] transition-colors shadow-md">Read Review ↗</a>
+                            <a href="${{blogUrl}}" target="_blank" class="block w-full text-center bg-[#78350f] text-white py-3 rounded-2xl text-[10px] font-bold hover:bg-[#92400e] transition-colors shadow-md">Read Review on Blog ↗</a>
                         </div>
                     </div>
                 `);
