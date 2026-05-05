@@ -18,7 +18,7 @@ if "disclaimer_accepted" not in st.session_state:
 # ─────────────────────────────────────────────
 # 2. CONSTANTS
 # ─────────────────────────────────────────────
-GITHUB_BASE_URL = "https://raw.githubusercontent.com/dongkeuncho-cmyk/sungsimdang-safe/main/"
+GITHUB_BASE_URL = "https://raw.githubusercontent.com/vibekorea-master/sungsimdang-safe/main/"
 DATA_AS_OF = "May 2025"
 FACILITY_NOTICE = (
     "This product is manufactured in the same facility as products containing eggs (poultry), "
