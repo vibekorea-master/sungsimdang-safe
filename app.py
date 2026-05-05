@@ -256,6 +256,21 @@ CATEGORY_COLORS = {
 st.markdown("""
 <style>
 header, footer, #MainMenu { visibility: hidden; }
+/* Streamlit 우하단 뱃지 / Deploy 버튼 완전 숨김 */
+[data-testid="stToolbar"],
+[data-testid="stDecoration"],
+[data-testid="stStatusWidget"],
+.viewerBadge_container__r5tak,
+.viewerBadge_link__qRIco,
+#stDecoration,
+.stDeployButton,
+[data-testid="stDeployButton"],
+.styles_viewerBadge__CvC9N,
+.viewerBadge_text__1eB1_,
+iframe[title="streamlit_viewer_badge"],
+div[class*="viewerBadge"],
+div[class*="StatusWidget"],
+div[class*="stToolbar"] { display: none !important; visibility: hidden !important; }
 /* 사이드바 완전 제거 */
 [data-testid="collapsedControl"],
 [data-testid="stSidebarCollapsedControl"],
