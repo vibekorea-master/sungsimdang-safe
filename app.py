@@ -2,13 +2,13 @@ import streamlit as st
 import streamlit.components.v1 as components
 import json
 
-# 1. 페이지 설정
+# 1. Page Configuration
 st.set_page_config(page_title="Sungsimdang Safe Guide", layout="wide")
 
-# 2. GitHub Raw Base URL (사용자님 정보 반영)
+# 2. GitHub Raw Base URL
 GITHUB_BASE_URL = "https://raw.githubusercontent.com/dongkeuncho-cmyk/sungsimdang-safe/main/"
 
-# 3. 29종 빵 전체 데이터 (DOCX 영문본 기준) [cite: 4-157]
+# 3. Bread Data (29 items)
 bread_data = [
     {"id": 1, "name": "Malami Croquette", "price": "3,000", "allergens": ["Egg", "Chicken", "Soybean", "Pork", "Wheat", "Shrimp", "Beef", "Squid", "Milk"], "img": "images/1. Malami Croquette.png", "desc": "Spicy Mala Xiangguo sauce with minced pork."},
     {"id": 2, "name": "Pain au Chocolat", "price": "3,000", "allergens": ["Egg", "Soybean", "Wheat", "Milk"], "img": "images/2. Pain au Chocolat.png", "desc": "Crispy pastry with French chocolate sticks."},
@@ -28,7 +28,6 @@ bread_data = [
     {"id": 16, "name": "Long Twist", "price": "3,000", "allergens": ["Egg", "Soybean", "Wheat", "Milk"], "img": "images/16. Long Twist.png", "desc": "Buttery twisted bread with vegetable oil."},
     {"id": 17, "name": "French Pie", "price": "2,000", "allergens": ["Egg", "Wheat", "Milk"], "img": "images/17. French Pie.png", "desc": "Raspberry and domestic strawberry jam."},
     {"id": 18, "name": "Almond Croissant", "price": "3,500", "allergens": ["Egg", "Soybean", "Wheat", "Milk"], "img": "images/18. Almond Croissant.png", "desc": "Buttery French croissant with USA almonds."},
-    {"id": 19, "name": "Stone-Ground Whole Wheat Bread", "price": "4,500", "allergens": ["Wheat", "Walnut"], "img": "images/19. Stone-Ground Whole Wheat Bread.png", "desc": "Organic whole wheat flour and walnuts."},
     {"id": 20, "name": "Squid Ink Baton", "price": "3,300", "allergens": ["Egg", "Pork", "Wheat", "Squid", "Milk"], "img": "images/20. Squid Ink Baton.png", "desc": "Spanish squid ink with domestic condensed milk."},
     {"id": 21, "name": "Red Wine Bread", "price": "4,500", "allergens": ["Wheat", "Sulfites", "Walnut"], "img": "images/21. Red Wine Bread.png", "desc": "Bread made with Spanish wine and German rye."},
     {"id": 22, "name": "Walnut Bread", "price": "4,000", "allergens": ["Egg", "Soybean", "Wheat", "Sulfites", "Milk", "Walnut"], "img": "images/22. Walnut Bread.png", "desc": "Hearty bread packed with USA walnuts."},
@@ -41,16 +40,16 @@ bread_data = [
     {"id": 29, "name": "Twigim Soboro", "price": "1,700", "allergens": ["Egg", "Soybean", "Wheat", "Sulfites", "Milk"], "img": "images/29. Twigim Soboro.png", "desc": "Legendary fried red bean soboro bun."}
 ]
 
-# 4. 사이드바 필터
+# 4. Sidebar Filter
 st.sidebar.title("🚫 Allergy Filter")
 all_ingredients = sorted(["Wheat", "Milk", "Egg", "Soybean", "Pork", "Beef", "Chicken", "Shrimp", "Squid", "Walnut", "Peanut", "Sulfites", "Shellfish (Oyster)", "Tomato"])
-avoid = st.sidebar.multiselect("Avoid ingredients:", all_ingredients)
+avoid = st.sidebar.multiselect("Hide breads containing:", all_ingredients)
 
 filtered = [b for b in bread_data if not any(a in b["allergens"] for a in avoid)]
 
-# 5. UI 렌더링 (HTML)
-st.title("🥖 Sungsimdang Safe Guide (Full 29 Items)")
-st.markdown(f"Found **{len(filtered)}** items safe for you. Enjoy Daejeon's best bread!")
+# 5. UI Rendering
+st.title("🥖 Sungsimdang Safe Guide")
+st.markdown(f"**{len(filtered)}** safe items found for you.")
 
 bread_json = json.dumps(filtered)
 html_code = f"""
@@ -62,14 +61,16 @@ html_code = f"""
         data.forEach(bread => {{
             document.write(`
                 <div class="bg-white rounded-2xl shadow-lg overflow-hidden border border-orange-100 flex flex-col h-full">
-                    <div class="h-52 overflow-hidden bg-gray-200">
-                        <img src="${{encodeURI(baseUrl + bread.img)}}" class="w-full h-full object-cover transition-transform duration-500 hover:scale-110" 
-                             onerror="this.src='https://via.placeholder.com/400x300?text=Wait+for+GitHub+Sync';">
+                    <div class="h-52 overflow-hidden bg-gray-200 relative">
+                        <img src="${{encodeURI(baseUrl + bread.img)}}" 
+                             style="width: 115%; height: 115%; object-fit: cover; object-position: left top; max-width: none;"
+                             class="transition-transform duration-500" 
+                             onerror="this.src='https://via.placeholder.com/400x300?text=Syncing...';">
                     </div>
                     <div class="p-5 flex flex-col flex-grow">
                         <div class="flex justify-between items-start mb-2">
                             <h3 class="text-sm font-bold text-gray-800 leading-tight">${{bread.name}}</h3>
-                            <span class="text-orange-600 font-bold text-xs ml-2">${{bread.price}}W</span>
+                            <span class="text-orange-600 font-bold text-xs ml-2 whitespace-nowrap">${{bread.price}}W</span>
                         </div>
                         <p class="text-[8px] text-gray-400 mb-2 font-bold uppercase tracking-tighter">Allergens: ${{bread.allergens.join(', ')}}</p>
                         <p class="text-[11px] text-gray-600 mb-4 flex-grow italic leading-snug">"${{bread.desc}}"</p>
