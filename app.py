@@ -255,24 +255,31 @@ CATEGORY_COLORS = {
 st.markdown("""
 <style>
 header, footer, #MainMenu { visibility: hidden; }
-/* 사이드바 및 사이드바 토글 버튼 완전 제거 */
+/* 사이드바 완전 제거 */
 [data-testid="collapsedControl"],
 [data-testid="stSidebarCollapsedControl"],
 section[data-testid="stSidebar"] { display: none !important; }
-/* 사이드바가 없으면 메인 콘텐츠 전체 너비 사용 */
-.main .block-container { max-width: 1200px; padding: 1rem 2rem; }
+/* 모바일 우선 레이아웃 */
+.main .block-container {
+    max-width: 720px;
+    padding: 0.5rem 1rem 2rem 1rem;
+}
 /* 기본 버튼 스타일 */
 div[data-testid="stButton"] > button[kind="primary"] {
     background: linear-gradient(135deg, #d97706, #78350f);
     border: none; border-radius: 50px;
-    font-size: 17px; font-weight: 800;
-    padding: 14px 40px; color: white;
+    font-size: 16px; font-weight: 800;
+    padding: 14px 24px; color: white;
+    width: 100%;
     box-shadow: 0 8px 20px rgba(120,53,15,0.35);
     transition: transform .15s;
 }
 div[data-testid="stButton"] > button[kind="primary"]:hover {
     transform: translateY(-2px);
 }
+/* Streamlit metric 모바일 폰트 조정 */
+[data-testid="stMetricValue"] { font-size: 1.2rem !important; }
+[data-testid="stMetricLabel"] { font-size: 0.7rem !important; }
 </style>
 """, unsafe_allow_html=True)
 
@@ -294,60 +301,75 @@ if not st.session_state.disclaimer_accepted:
         unsafe_allow_html=True
     )
 
-    # 게이트 카드 — components.html() 로 렌더링 (HTML 주석 없음, f-string 충돌 없음)
+    # 게이트 카드 — components.html() 사용 / 모바일 최적화 / 한글 직접 삽입
     gate_html = (
-        '<!DOCTYPE html><html><head><meta charset="UTF-8"></head>'
-        '<body style="margin:0;padding:0;background:transparent;">'
-        '<div style="max-width:620px;margin:40px auto 0;background:white;'
-        'border-radius:36px;padding:44px 40px 36px;'
-        'box-shadow:0 30px 70px rgba(0,0,0,0.55);text-align:center;'
-        'font-family:-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif;">'
-
-        '<div style="font-size:52px;margin-bottom:6px;">&#x1F956;</div>'
-        '<h1 style="color:#78350f;font-size:26px;font-weight:900;margin:0 0 4px;">'
-        'Sungsimdang Allergy Reference Guide</h1>'
-        '<p style="color:#78350f;font-size:13px;font-weight:700;margin:0 0 22px;opacity:.75;">'
-        '&#49457;&#49901;&#45813; &#50508;&#47084;&#51648; &#52280;&#44256; &#44032;&#51060;&#46300;'
-        ' &mdash; Unofficial Fan Guide</p>'
-
-        '<div style="background:#fef2f2;border:2px solid #fca5a5;'
-        'border-radius:18px;padding:20px 22px;margin-bottom:20px;text-align:left;">'
-        '<p style="color:#991b1b;font-size:13px;font-weight:900;'
-        'letter-spacing:.5px;margin:0 0 10px;">&#9888;&#65039; PLEASE READ BEFORE CONTINUING</p>'
-        '<ul style="color:#b91c1c;font-size:13px;line-height:1.85;margin:0;padding-left:18px;">'
-        '<li><strong>NOT affiliated with Sungsimdang (&#49457;&#49901;&#45813;).</strong></li>'
+        '<!DOCTYPE html>'
+        '<html><head><meta charset="UTF-8">'
+        '<meta name="viewport" content="width=device-width, initial-scale=1.0">'
+        '<style>'
+        '*{box-sizing:border-box;margin:0;padding:0;}'
+        'html,body{height:100%;background:transparent;'
+        'font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;}'
+        'body{padding:10px 10px 2px 10px;display:flex;flex-direction:column;}'
+        '.card{background:white;border-radius:22px;'
+        'padding:20px 18px 20px;'
+        'box-shadow:0 20px 50px rgba(0,0,0,0.5);'
+        'overflow-y:auto;flex:1;}'
+        '.logo{font-size:32px;line-height:1;margin-bottom:5px;text-align:center;}'
+        '.title{color:#78350f;font-size:19px;font-weight:900;margin-bottom:2px;'
+        'line-height:1.2;text-align:center;}'
+        '.subtitle{color:#92400e;font-size:11px;font-weight:600;margin-bottom:14px;'
+        'opacity:.8;text-align:center;}'
+        '.red-box{background:#fef2f2;border:2px solid #fca5a5;border-radius:14px;'
+        'padding:13px 15px;margin-bottom:11px;text-align:left;}'
+        '.red-title{color:#991b1b;font-size:12px;font-weight:900;letter-spacing:.3px;'
+        'margin-bottom:9px;}'
+        '.red-box ul{color:#b91c1c;font-size:12.5px;line-height:1.75;padding-left:18px;}'
+        '.red-box li{margin-bottom:5px;}'
+        '.orange-box{background:#fff7ed;border:1.5px solid #fed7aa;border-radius:12px;'
+        'padding:11px 14px;margin-bottom:14px;text-align:left;}'
+        '.orange-title{color:#92400e;font-size:10.5px;font-weight:900;text-transform:uppercase;'
+        'letter-spacing:.4px;margin-bottom:6px;}'
+        '.orange-text{color:#78350f;font-size:11px;line-height:1.65;font-style:italic;}'
+        '.agree-text{color:#374151;font-size:12px;font-weight:700;text-align:center;'
+        'margin-top:4px;}'
+        '</style></head>'
+        '<body>'
+        '<div class="card">'
+        '<div class="logo">&#x1F956;</div>'
+        '<div class="title">Sungsimdang Allergy Reference Guide</div>'
+        '<div class="subtitle">성심당 알러지 참고 가이드 &mdash; Unofficial Fan Guide</div>'
+        '<div class="red-box">'
+        '<div class="red-title">&#9888;&#65039; PLEASE READ BEFORE CONTINUING</div>'
+        '<ul>'
+        '<li><strong>NOT affiliated with Sungsimdang (성심당).</strong></li>'
         '<li>Author is <strong>NOT a medical professional</strong>, dietitian, or food scientist.</li>'
         '<li>This is a <strong>reference tool only</strong> &mdash; NOT medical advice.</li>'
-        '<li>Recipes can change without notice.</li>'
+        '<li>Recipes can change without notice &mdash; always check on-site.</li>'
         '<li><strong>Always confirm allergens with staff in person</strong> before purchasing.</li>'
-        '<li>If you have severe allergies, <strong>consult your physician</strong> before traveling.</li>'
+        '<li>Severe allergies? <strong>Consult your physician</strong> before traveling.</li>'
         '</ul></div>'
-
-        '<div style="background:#fff7ed;border:1.5px solid #fed7aa;'
-        'border-radius:14px;padding:14px 18px;margin-bottom:24px;text-align:left;">'
-        '<p style="color:#92400e;font-size:11px;font-weight:900;'
-        'margin:0 0 6px;text-transform:uppercase;letter-spacing:.5px;">'
-        '&#x1F3ED; SHARED FACILITY NOTICE</p>'
-        '<p style="color:#78350f;font-size:11.5px;line-height:1.65;margin:0;font-style:italic;">'
+        '<div class="orange-box">'
+        '<div class="orange-title">&#x1F3ED; Shared Facility Notice</div>'
+        '<div class="orange-text">'
         + FACILITY_NOTICE +
-        '</p></div>'
-
-        '<p style="color:#374151;font-size:14px;font-weight:700;margin:0 0 4px;">'
-        'By clicking below, you confirm you have read and accept these terms.</p>'
-        '</div></body></html>'
+        '</div></div>'
+        '<p class="agree-text">&#x2B07; Scroll up if needed, then tap the button below to continue.</p>'
+        '</div>'
+        '</body></html>'
     )
-    components.html(gate_html, height=570, scrolling=False)
+    components.html(gate_html, height=540, scrolling=True)
 
-    col_l, col_btn, col_r = st.columns([1, 1.6, 1])
-    with col_btn:
-        if st.button("✅  I AGREE & VIEW 29 BREADS", use_container_width=True, type="primary"):
-            st.session_state.disclaimer_accepted = True
-            st.rerun()
+    # 버튼: 컬럼 분리 없이 전체 너비로 (모바일 최적화)
+    if st.button("✅  I AGREE & VIEW 29 BREADS", use_container_width=True, type="primary"):
+        st.session_state.disclaimer_accepted = True
+        st.rerun()
 
     st.markdown(
-        "<p style='text-align:center;color:rgba(255,255,255,0.55);"
-        "font-size:11px;margin-top:14px;'>"
-        "Free &bull; Unofficial &bull; Always verify with Sungsimdang staff in person</p>",
+        "<p style='text-align:center;color:rgba(255,255,255,0.65);"
+        "font-size:11px;margin-top:8px;letter-spacing:.2px;'>"
+        "&#x1F513; Free &nbsp;&bull;&nbsp; Unofficial &nbsp;&bull;&nbsp; "
+        "Always verify allergens with Sungsimdang staff in person</p>",
         unsafe_allow_html=True
     )
 
@@ -362,76 +384,75 @@ else:
     </style>
     """, unsafe_allow_html=True)
 
-    # ── 헤더 ──────────────────────────────────
-    st.markdown("""
-    <div style="text-align:center;padding:20px 0 10px;">
-        <h1 style="color:#78350f;font-size:30px;font-weight:900;margin:0 0 5px;">
-            🥖 Sungsimdang Allergy Reference Guide
-        </h1>
-        <p style="color:#92400e;font-size:13px;font-weight:600;margin:0;">
-            성심당 알러지 참고 가이드 &nbsp;·&nbsp; Unofficial Fan Guide &nbsp;·&nbsp; Daejeon, Korea
-        </p>
-    </div>
-    """, unsafe_allow_html=True)
-
-    # ── 법적 고지 배너 (항상 표시) ────────────
+    # ── 헤더 (모바일 최적화: 컴팩트, 줄바꿈 방지) ─
     st.markdown(
-        '<div style="background:#fef2f2;border:2px solid #fca5a5;border-radius:14px;'
-        'padding:12px 18px;margin:0 0 14px;display:flex;align-items:flex-start;gap:10px;">'
-        '<span style="font-size:18px;flex-shrink:0;">&#9888;&#65039;</span>'
-        '<p style="color:#991b1b;font-size:12px;line-height:1.7;margin:0;font-weight:600;">'
-        '<strong>UNOFFICIAL REFERENCE ONLY — NOT AFFILIATED WITH SUNGSIMDANG.</strong> '
-        'Author is not a medical professional. This is NOT medical advice. '
-        '<strong>Always confirm allergen information directly with Sungsimdang staff '
-        'in person before purchasing.</strong> If you have severe allergies, consult '
-        'your physician before traveling.</p></div>',
+        '<div style="text-align:center;padding:12px 0 10px;">'
+        '<p style="font-size:30px;margin:0 0 4px;">&#x1F956;</p>'
+        '<h1 style="color:#78350f;font-size:21px;font-weight:900;margin:0 0 4px;'
+        'line-height:1.25;letter-spacing:-.2px;">'
+        'Sungsimdang Allergy Reference Guide</h1>'
+        '<p style="color:#92400e;font-size:12px;font-weight:600;margin:0 0 2px;">'
+        '성심당 알러지 참고 가이드</p>'
+        '<p style="color:#b45309;font-size:10.5px;font-weight:500;margin:0;opacity:.8;">'
+        'Unofficial Fan Guide &nbsp;&bull;&nbsp; Daejeon, Korea</p>'
+        '</div>',
+        unsafe_allow_html=True
+    )
+
+    # ── 법적 고지 배너 (항상 표시, 모바일 최적화) ─
+    st.markdown(
+        '<div style="background:#fef2f2;border:2px solid #fca5a5;border-radius:12px;'
+        'padding:10px 14px;margin:0 0 10px;">'
+        '<p style="color:#991b1b;font-size:12px;line-height:1.6;margin:0;font-weight:600;">'
+        '&#9888;&#65039;&nbsp; <strong>NOT affiliated with Sungsimdang.</strong>&nbsp; '
+        '<strong>Not medical advice.</strong>&nbsp; '
+        'Always confirm allergens <strong>with staff in person</strong> before purchasing.</p>'
+        '</div>',
         unsafe_allow_html=True
     )
 
     # ── 공동 시설 주의 ─────────────────────────
     st.warning(f"🏭 **Shared Facility Notice:** {FACILITY_NOTICE}")
 
-    # ════════════════════════════════════════════
-    # ★ 핵심: 알러지 필터 패널 — 사이드바 없이
-    #   메인 화면에 항상 표시되는 inline 패널
-    # ════════════════════════════════════════════
-    st.markdown("""
-    <div style="background:#fff8f0;border:2px solid #fed7aa;border-radius:20px;
-                padding:20px 24px 16px;margin:0 0 20px;">
-        <p style="color:#78350f;font-size:16px;font-weight:900;margin:0 0 14px;">
-            🚫 Allergy Filter &nbsp;<span style="font-size:12px;font-weight:500;color:#92400e;">
-            — Select allergens to avoid. Matching breads will be hidden.</span>
-        </p>
-    </div>
-    """, unsafe_allow_html=True)
+    # ══════════════════════════════════════════
+    # ★ 알러지 필터 패널 — 항상 보이는 메인 inline
+    # ══════════════════════════════════════════
+    st.markdown(
+        '<div style="background:#fff8f0;border:2px solid #f59e0b;border-radius:16px;'
+        'padding:12px 16px 12px 16px;margin:8px 0 0 0;">'
+        '<p style="color:#78350f;font-size:14px;font-weight:900;margin:0;'
+        'white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'
+        '&#x1F6AB;&nbsp; Allergy Filter &mdash; Select allergens to avoid.'
+        ' Matching breads will be hidden.</p>'
+        '</div>',
+        unsafe_allow_html=True
+    )
 
-    # 알러지 멀티셀렉트 — 메인 화면에 배치
+    # ── 알러지 멀티셀렉트 (핵심 기능, 레이블 크고 굵게, 눈에 띄는 하이라이트) ──
+    st.markdown(
+        '<div style="background:#fffbeb;border-left:5px solid #d97706;'
+        'border-radius:0 10px 10px 0;padding:10px 14px;margin:10px 0 6px;">'
+        '<p style="color:#78350f;font-size:15px;font-weight:900;margin:0;'
+        'letter-spacing:.1px;">'
+        '&#9888;&#65039;&nbsp; Select all allergens you need to avoid:</p>'
+        '</div>',
+        unsafe_allow_html=True
+    )
     avoid = st.multiselect(
         "Select all allergens you need to avoid:",
         ALL_ALLERGENS,
-        placeholder="Tap to select allergens (e.g. Wheat, Milk, Egg…)",
-        help="Breads containing any selected allergen will be hidden from the card view below."
+        placeholder="Tap here — e.g. Wheat, Milk, Egg, Pork…",
+        label_visibility="collapsed",
     )
 
-    # 카테고리 필터
+    # ── 카테고리 필터 (접이식, 모바일 세로 배치) ──
     all_cats = sorted(set(b["category"] for b in BREAD_DATA))
-    col_cat_label, col_cat_select = st.columns([1, 3])
-    with col_cat_label:
-        st.markdown(
-            "<p style='color:#78350f;font-size:13px;font-weight:700;"
-            "margin:8px 0 0;'>🗂 Category:</p>",
-            unsafe_allow_html=True
-        )
-    with col_cat_select:
-        selected_cats = st.multiselect(
-            "Filter by category:",
-            all_cats,
-            default=all_cats,
-            label_visibility="collapsed",
-            placeholder="Select categories…"
-        )
-
-    st.markdown("<div style='height:4px;'></div>", unsafe_allow_html=True)
+    selected_cats = st.multiselect(
+        "🗂 Show bread categories:",
+        all_cats,
+        default=all_cats,
+        placeholder="Select categories…"
+    )
 
     # ── 결과 요약 바 ───────────────────────────
     filtered = [
@@ -443,15 +464,29 @@ else:
     shown  = len(filtered)
     hidden = total - shown
 
+    # ── 결과 요약 (모바일: 수평 3칸 컴팩트) ────
     col_a, col_b, col_c = st.columns(3)
-    col_a.metric("✅ Showing", f"{shown} breads")
-    col_b.metric("🚫 Hidden", f"{hidden} breads")
-    col_c.metric("📋 Total", f"{total} breads")
+    col_a.metric("✅ Showing", f"{shown}")
+    col_b.metric("🚫 Hidden", f"{hidden}")
+    col_c.metric("📋 Total", f"{total}")
 
     if avoid:
-        st.info(f"🔍 Active filters: **{', '.join(avoid)}** — breads with these allergens are hidden.")
+        avoid_str = ", ".join(avoid)
+        st.markdown(
+            f'<div style="background:#fef2f2;border:1.5px solid #fca5a5;border-radius:10px;'
+            f'padding:8px 12px;margin:4px 0 6px;">'
+            f'<p style="color:#991b1b;font-size:12px;font-weight:700;margin:0;">'
+            f'&#x1F50D; Hiding breads with: <strong>{avoid_str}</strong></p></div>',
+            unsafe_allow_html=True
+        )
     else:
-        st.info("ℹ️ No allergen filter active. All breads shown. Select allergens above to filter.")
+        st.markdown(
+            '<div style="background:#f0fdf4;border:1.5px solid #86efac;border-radius:10px;'
+            'padding:8px 12px;margin:4px 0 6px;">'
+            '<p style="color:#166534;font-size:12px;font-weight:700;margin:0;">'
+            'ℹ️ No allergen filter active &mdash; all breads shown. Select allergens above to filter.</p></div>',
+            unsafe_allow_html=True
+        )
 
     # ── 카드 그리드 (HTML component) ──────────
     bread_json     = json.dumps(filtered)
