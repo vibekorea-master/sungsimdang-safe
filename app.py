@@ -132,7 +132,7 @@ BREAD_DATA = [
         "id": 14, "name": "Cream Cheese White Bun", "ko": "크림치즈화이트번",
         "price": "3,300", "category": "Sweet",
         "description": "Fluffy white bun generously filled with New Zealand cream cheese.",
-        "origin": "Strong wheat flour (USA / Canada); Cream cheese (New Zealand); Raw milk (Domestic)",
+        "origin": "Strong wheat flour (USA / Canada); Cream cheese (New Zealand); Milk (Raw milk: Domestic)",
         "allergens": ["Wheat", "Sulfites", "Milk"]
     },
     {
@@ -202,7 +202,7 @@ BREAD_DATA = [
         "id": 24, "name": "Plain Croissant", "ko": "플레인크로와상",
         "price": "2,800", "category": "Pastry",
         "description": "Classic French croissant with premium French butter sheet.",
-        "origin": "Butter sheet (France); Wheat flour (USA); Strong wheat flour (USA / Canada); Raw milk (Domestic)",
+        "origin": "Butter sheet (France); Wheat flour (Wheat: USA); Strong wheat flour (USA / Canada); Milk (Raw milk: Domestic)",
         "allergens": ["Egg", "Soybean", "Wheat", "Milk"]
     },
     {
@@ -748,7 +748,7 @@ else:
         'letter-spacing:.5px;margin:0 0 10px;">&#9888;&#65039; FULL DISCLAIMER &amp; TERMS OF USE</p>'
         '<p style="color:#b91c1c;font-size:11.5px;line-height:1.75;margin:0;">'
         'This guide is an <strong>independent, unofficial fan resource</strong> and is '
-        '<strong>NOT affiliated with, endorsed by, or sponsored by Sungsimdang (&#49457;&#49901;&#45813;)</strong>. '
+        '<strong>NOT affiliated with, endorsed by, or sponsored by Sungsimdang (성심당)</strong>. '
         'The author is <strong>NOT a medical professional, registered dietitian, or food scientist</strong>. '
         'This tool is provided for general informational and language-accessibility purposes only. '
         'It is <strong>NOT medical advice</strong>. Information may be outdated, incomplete, or contain '
@@ -769,7 +769,7 @@ else:
         '<p style="text-align:center;color:#9ca3af;font-size:10.5px;'
         'margin:0 0 24px;line-height:1.6;">'
         '&copy; 2025. Independent fan guide. All rights reserved.<br>'
-        'This guide is not affiliated with, endorsed by, or sponsored by Sungsimdang (&#49457;&#49901;&#45813;).<br>'
+        'This guide is not affiliated with, endorsed by, or sponsored by Sungsimdang (성심당).<br>'
         f'Data last verified: {DATA_AS_OF}. Always confirm allergens with staff in person.'
         '</p>',
         unsafe_allow_html=True
