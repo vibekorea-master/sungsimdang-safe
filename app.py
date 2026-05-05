@@ -19,6 +19,7 @@ if "disclaimer_accepted" not in st.session_state:
 # 2. CONSTANTS
 # ─────────────────────────────────────────────
 GITHUB_BASE_URL = "https://raw.githubusercontent.com/dongkeuncho-cmyk/sungsimdang-safe/main/"
+DATA_AS_OF = "May 2025"
 FACILITY_NOTICE = (
     "This product is manufactured in the same facility as products containing eggs (poultry), "
     "milk, buckwheat, peanuts, soybeans, wheat, mackerel, crab, shrimp, pork, peaches, tomatoes, "
@@ -40,7 +41,7 @@ BREAD_DATA = [
         "id": 1, "name": "Malami Croquette", "ko": "마라미고로케",
         "price": "3,000", "category": "Savory",
         "description": "Crispy fried croquette filled with spicy Mala-style pork and sauce.",
-        "origin": "Medium-strength wheat flour (USA / Australia); Minced pork (Domestic); Mala Xiangguo sauce base (China); Pork bone extract (Domestic); Classic Malatang sauce (China)",
+        "origin": "Medium-strength wheat flour (USA / Australia); Minced pork (Pork: Domestic); Breadcrumbs [Strong wheat flour (USA / Canada); Breadcrumb mix (Wheat: USA / Canada, Gluten: France)]; Mala Xiangguo sauce [Mala Xiangguo sauce base (China — doubanjiang, soybean oil, dried chili, brewed soy sauce, green Sichuan pepper); Pork bone extract (Pork bone: Domestic)]; Classic Malatang sauce (China)",
         "allergens": ["Egg", "Chicken", "Soybean", "Pork", "Wheat", "Shrimp", "Beef", "Squid", "Milk"]
     },
     {
@@ -68,7 +69,7 @@ BREAD_DATA = [
         "id": 5, "name": "Little Echo", "ko": "작은메아리",
         "price": "3,000", "category": "Pastry",
         "description": "A smaller version of the signature Bomunsan Echo — buttery laminated pastry.",
-        "origin": "Butter sheet (Netherlands); Wheat flour (USA); Strong wheat flour (USA / Canada); Raw milk (Domestic)",
+        "origin": "Butter sheet (Netherlands); Wheat flour (Wheat: USA); Strong wheat flour (USA / Canada); Milk (Raw milk: Domestic)",
         "allergens": ["Egg", "Soybean", "Wheat", "Milk"]
     },
     {
@@ -96,14 +97,14 @@ BREAD_DATA = [
         "id": 9, "name": "Under the Fig Tree", "ko": "무화과그늘아래",
         "price": "3,000", "category": "Artisan",
         "description": "Organic wheat bread layered with fig and US cream cheese.",
-        "origin": "Organic strong wheat flour (Türkiye); Cream cheese (USA); Wheat flour (Domestic); Fig (Türkiye)",
+        "origin": "Organic strong wheat flour (Türkiye); Cream cheese (USA); Wheat flour (Wheat: Domestic); Fig (Türkiye)",
         "allergens": ["Wheat", "Sulfites", "Milk", "Walnut"]
     },
     {
         "id": 10, "name": "Steak Bread", "ko": "스테이크빵",
         "price": "2,300", "category": "Savory",
         "description": "Soft bread stuffed with Korean-style marinated pork (Neobiani) and onion.",
-        "origin": "Neobiani — Pork (Imported: USA, Spain, Canada); Green onion (China); Onion (Domestic); Strong wheat flour (USA / Canada)",
+        "origin": "Neobiani (Korean-style sliced grilled pork) [Pork: Imported (USA, Spain, Canada, etc.); Green onion (China)]; Onion (Domestic); Strong wheat flour (USA / Canada)",
         "allergens": ["Egg", "Soybean", "Pork", "Wheat", "Beef", "Milk", "Shellfish (Oyster)", "Tomato"]
     },
     {
@@ -152,7 +153,7 @@ BREAD_DATA = [
         "id": 17, "name": "French Pie", "ko": "후렌치파이",
         "price": "2,000", "category": "Pastry",
         "description": "Flaky pastry filled with Danish raspberry jam and domestic strawberry jam.",
-        "origin": "Butter — Processed butter (Imported: NZ, NLD, AUS); Palm oil (Malaysia); Strong wheat flour (USA / Canada); Raspberry jam (Denmark); Strawberry jam (Domestic)",
+        "origin": "Butter {Processed butter (Imported: New Zealand, Netherlands, Australia, etc.); Vegetable oil [Palm oil (Malaysia), Palm stearin oil (Malaysia)]}; Strong wheat flour (USA / Canada); Raspberry jam (Denmark); Strawberry jam (Strawberry: Domestic)",
         "allergens": ["Egg", "Wheat", "Milk"]
     },
     {
@@ -191,10 +192,10 @@ BREAD_DATA = [
         "allergens": ["Egg", "Soybean", "Wheat", "Sulfites", "Milk", "Walnut"]
     },
     {
-        "id": 23, "name": "Toyo Bread", "ko": "토요빵",
+        "id": 23, "name": "Toyo Bread", "ko": "토요빵 (토요일 특별빵)",
         "price": "3,800", "category": "Sweet",
         "description": "Soft Saturday special bread with cream cheese and sweet potato.",
-        "origin": "Strong wheat flour (USA / Canada); Raw milk (Domestic); Cream cheese (New Zealand); Sweet potato (Domestic)",
+        "origin": "Strong wheat flour (USA / Canada); Milk (Raw milk: Domestic); Cream cheese (New Zealand); Sweet potato (Domestic)",
         "allergens": ["Soybean", "Wheat", "Beef", "Milk"]
     },
     {
@@ -212,10 +213,10 @@ BREAD_DATA = [
         "allergens": ["Egg", "Soybean", "Wheat", "Milk"]
     },
     {
-        "id": 26, "name": "Pie Manju Set", "ko": "파이만주세트",
+        "id": 26, "name": "Pie Manju Set (8 pcs)", "ko": "파이만주세트 (8개)",
         "price": "9,600", "category": "Sweet",
-        "description": "Set of pie-pastry manju filled with red bean paste and almond.",
-        "origin": "Whole red bean paste — Red bean (China), Refined salt (Domestic); Strong wheat flour (USA / Canada); Almond powder (USA); Margarine (Imported)",
+        "description": "Set of 8 pie-pastry manju filled with red bean paste and almond.",
+        "origin": "Whole red bean paste [Red bean (China), Refined salt (Domestic)]; Strong wheat flour (USA / Canada); Almond powder (USA); Margarine {Processed fats and oils [Palm esterified oil (Malaysia), Palm kernel esterified oil (Malaysia)]; Prepared edible fat (New Zealand, Australia, Malaysia, etc.)}",
         "allergens": ["Egg", "Soybean", "Wheat", "Milk", "Walnut"]
     },
     {
@@ -229,14 +230,14 @@ BREAD_DATA = [
         "id": 28, "name": "Twiso-guma", "ko": "튀소구마",
         "price": "1,700", "category": "Sweet",
         "description": "Fried sweet potato bun with soboro topping — a sweet potato twist on a classic.",
-        "origin": "Sweet potato (Domestic); Wheat flour (USA / Canada); Skim milk powder (Imported); Cake flour (USA)",
+        "origin": "Sweet potato (Domestic); Processed cereal product [Wheat flour (Wheat: USA, Canada); Mixed skim milk powder (Skim milk powder — Imported: USA, France, Belgium, etc.)]; Cake flour (USA)",
         "allergens": ["Egg", "Soybean", "Wheat", "Sulfites", "Milk"]
     },
     {
         "id": 29, "name": "Twigim Soboro", "ko": "튀김소보로",
         "price": "1,700", "category": "Sweet",
         "description": "Sungsimdang's most iconic bread — fried streusel bun filled with red bean paste.",
-        "origin": "Whole red bean paste (China); Wheat flour (USA / Canada); Skim milk powder (Imported); Cake flour (USA)",
+        "origin": "Whole red bean paste [Red bean (China), Refined salt (Domestic)]; Processed cereal product [Wheat flour (Wheat: USA, Canada); Mixed skim milk powder (Skim milk powder — Imported: USA, France, Belgium, etc.)]; Cake flour (USA)",
         "allergens": ["Egg", "Soybean", "Wheat", "Sulfites", "Milk"]
     },
 ]
@@ -394,7 +395,7 @@ else:
         '<p style="color:#92400e;font-size:12px;font-weight:600;margin:0 0 2px;">'
         '성심당 알러지 참고 가이드</p>'
         '<p style="color:#b45309;font-size:10.5px;font-weight:500;margin:0;opacity:.8;">'
-        'Unofficial Fan Guide &nbsp;&bull;&nbsp; Daejeon, Korea</p>'
+        f'Unofficial Fan Guide &nbsp;&bull;&nbsp; Daejeon, Korea &nbsp;&bull;&nbsp; Data: {DATA_AS_OF}</p>'
         '</div>',
         unsafe_allow_html=True
     )
@@ -406,7 +407,8 @@ else:
         '<p style="color:#991b1b;font-size:12px;line-height:1.6;margin:0;font-weight:600;">'
         '&#9888;&#65039;&nbsp; <strong>NOT affiliated with Sungsimdang.</strong>&nbsp; '
         '<strong>Not medical advice.</strong>&nbsp; '
-        'Always confirm allergens <strong>with staff in person</strong> before purchasing.</p>'
+        'Always confirm allergens <strong>with staff in person</strong> before purchasing. '
+        'Prices subject to change without notice.</p>'
         '</div>',
         unsafe_allow_html=True
     )
@@ -707,11 +709,41 @@ else:
             unsafe_allow_html=True
         )
 
-    # ── 하단 전체 면책 조항 ────────────────────
+    # ── Data Source & Limitations 박스 ──────────
     st.markdown("---")
     st.markdown(
+        '<div style="background:#fef2f2;border-left:5px solid #dc2626;'
+        'border-radius:10px;padding:16px 20px;margin-bottom:14px;">'
+        '<p style="margin:0 0 10px 0;color:#991b1b;font-size:13px;font-weight:800;">'
+        '&#x1F4CB; Data Source &amp; Limitations</p>'
+        '<p style="margin:0 0 10px 0;color:#991b1b;font-size:12px;line-height:1.7;">'
+        '<strong>Source:</strong> The bread information in this tool is primarily based on '
+        "Sungsimdang's publicly accessible online ordering app, which is provided in Korean. "
+        'The author has translated this information into English with the help of various '
+        'supporting references. <strong>This is not an official translation, and minor '
+        'inaccuracies in translation or interpretation are possible.</strong></p>'
+        '<p style="margin:0 0 10px 0;color:#991b1b;font-size:12px;line-height:1.7;">'
+        '<strong>Update frequency:</strong> The author updates the tool periodically when '
+        'changes are noticed in the source app. However, the tool may not always reflect the '
+        'very latest formulations, prices, or product lineup. '
+        f'<strong>Data last verified: {DATA_AS_OF}.</strong> '
+        "For the most current information, please refer to Sungsimdang's official channels "
+        'or ask staff in person.</p>'
+        '<p style="margin:0;color:#991b1b;font-size:12px;line-height:1.7;">'
+        '<strong>Limitation:</strong> The author has no special access to '
+        "Sungsimdang's internal recipes or supplier lists, and is not affiliated with the "
+        'company in any way. <strong>Do not rely solely on this tool for allergy decisions '
+        '— always verify with staff in person.</strong> The author is not a medical '
+        'professional and assumes no liability for any health consequences arising from '
+        'the use of this guide.</p>'
+        '</div>',
+        unsafe_allow_html=True
+    )
+
+    # ── 하단 전체 면책 조항 ────────────────────
+    st.markdown(
         '<div style="background:#fef2f2;border:2px solid #fca5a5;'
-        'border-radius:16px;padding:20px 24px;margin-bottom:20px;">'
+        'border-radius:16px;padding:20px 24px;margin-bottom:14px;">'
         '<p style="color:#991b1b;font-size:12px;font-weight:900;'
         'letter-spacing:.5px;margin:0 0 10px;">&#9888;&#65039; FULL DISCLAIMER &amp; TERMS OF USE</p>'
         '<p style="color:#b91c1c;font-size:11.5px;line-height:1.75;margin:0;">'
@@ -721,6 +753,7 @@ else:
         'This tool is provided for general informational and language-accessibility purposes only. '
         'It is <strong>NOT medical advice</strong>. Information may be outdated, incomplete, or contain '
         'translation inaccuracies. Sungsimdang may update recipes or suppliers without notice. '
+        'Prices are subject to change without notice. '
         'Shared-facility cross-contamination is possible at any bakery. '
         '<strong>By using this tool, you accept sole responsibility for any decisions '
         'made regarding food consumption.</strong> Always confirm allergen information '
@@ -728,5 +761,16 @@ else:
         'In a medical emergency in Korea, call <strong>119</strong>. '
         'For travel assistance, call <strong>1330</strong>.'
         '</p></div>',
+        unsafe_allow_html=True
+    )
+
+    # ── 저작권 / Copyright ─────────────────────
+    st.markdown(
+        '<p style="text-align:center;color:#9ca3af;font-size:10.5px;'
+        'margin:0 0 24px;line-height:1.6;">'
+        '&copy; 2025. Independent fan guide. All rights reserved.<br>'
+        'This guide is not affiliated with, endorsed by, or sponsored by Sungsimdang (&#49457;&#49901;&#45813;).<br>'
+        f'Data last verified: {DATA_AS_OF}. Always confirm allergens with staff in person.'
+        '</p>',
         unsafe_allow_html=True
     )
