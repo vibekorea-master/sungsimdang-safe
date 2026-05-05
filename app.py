@@ -14,18 +14,21 @@ SHARED_FACILITY_TEXT = """
 *Eggs (poultry), Milk, Buckwheat, Peanuts, Soybeans, Wheat, Mackerel, Crab, Shrimp, Pork, Peaches, Tomatoes, Sulfites, Walnuts, Chicken, Beef, Squid, Shellfish (including Oysters, Abalone, and Mussels), and Pine nuts.*
 """
 
-# 4. Sidebar: Filter ONLY (직관적인 구성을 위해 안내문 제거)
-st.sidebar.title("🚫 Filter Ingredients")
-st.sidebar.write("Select ingredients to hide:")
+# 4. Sidebar: 직관적인 문구로 변경
+st.sidebar.title("🚫 Your Allergies")
+st.sidebar.write("If you have allergies, select them below:")
 
+# 알러지 유발 가능 성분 리스트 
 all_ingredients = sorted([
     "Wheat", "Milk", "Egg", "Soybean", "Pork", "Beef", "Chicken", 
     "Shrimp", "Squid", "Walnut", "Peanut", "Sulfites", 
     "Shellfish (Oyster)", "Tomato"
 ])
-avoid = st.sidebar.multiselect("Avoid these:", all_ingredients)
 
-# 5. Bread Data (29 items fully verified [cite: 4-157])
+# "I am allergic to..." 라는 문구가 훨씬 더 직관적입니다.
+avoid = st.sidebar.multiselect("I am allergic to:", all_ingredients)
+
+# 5. Bread Data (29 items) 
 bread_data = [
     {"id": 1, "name": "Malami Croquette", "price": "3,000", "allergens": ["Egg", "Chicken", "Soybean", "Pork", "Wheat", "Shrimp", "Beef", "Squid", "Milk"], "img": "images/1. Malami Croquette.png", "desc": "Spicy Mala Xiangguo sauce with minced pork."},
     {"id": 2, "name": "Pain au Chocolat", "price": "3,000", "allergens": ["Egg", "Soybean", "Wheat", "Milk"], "img": "images/2. Pain au Chocolat.png", "desc": "Crispy pastry with French chocolate sticks."},
@@ -58,14 +61,12 @@ bread_data = [
     {"id": 29, "name": "Twigim Soboro", "price": "1,700", "allergens": ["Egg", "Soybean", "Wheat", "Sulfites", "Milk"], "img": "images/29. Twigim Soboro.png", "desc": "Legendary fried red bean soboro bun."}
 ]
 
-# 6. Main UI Rendering
+# 6. UI Rendering
 st.title("🥖 Sungsimdang Safe Guide")
-
-# 메인 상단에 제조시설 안내 배치 (강렬하게 경고) 
-st.error(SHARED_FACILITY_TEXT)
+st.error(SHARED_FACILITY_TEXT) # 
 
 filtered = [b for b in bread_data if not any(a in b["allergens"] for a in avoid)]
-st.markdown(f"**{len(filtered)}** safe items found for your selection.")
+st.markdown(f"**{len(filtered)}** items shown based on your needs.")
 
 bread_json = json.dumps(filtered)
 html_code = f"""
